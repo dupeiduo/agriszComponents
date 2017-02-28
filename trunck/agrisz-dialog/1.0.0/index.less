@@ -1,0 +1,40 @@
+.my-dragable-dialog {
+  position: absolute;
+  z-index: 3;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+
+  .targeter {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 6px;
+    background: #fff;
+    padding-bottom: 35px;
+
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 0;
+      font-size: 25px;
+      cursor: pointer;
+      z-index: 6;
+    }
+    .title {
+      position: relative;
+      height: 20px;
+      padding: 15px 0 0 60px;
+      cursor: move;
+      z-index: 5;
+    }
+    .content {
+      position: relative;
+      top: 10px;
+    }
+  }
+}

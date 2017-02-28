@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-map",
+  "version": "1.0.0",
+  "description": "the map of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}
