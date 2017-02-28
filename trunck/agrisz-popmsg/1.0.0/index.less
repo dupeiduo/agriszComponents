@@ -1,0 +1,35 @@
+.pop-message {
+  display: none;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 14px;
+  width: 192px;
+  height: 45px;
+  line-height: 45px;
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  text-align: center;
+  transform: translate(-50%,-50%);
+}
+.pop-message-show {
+  display: block;
+}
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}
+.fadeout {
+  animation-name: fade;
+  animation-duration: 1s; 
+  animation-iteration-count: 1; 
+  animation-fill-mode: forwards;
+}

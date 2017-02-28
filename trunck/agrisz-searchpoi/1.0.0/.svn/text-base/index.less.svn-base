@@ -1,0 +1,51 @@
+.soso {
+  position: fixed;
+  top: 50px;
+  width: 262px;
+
+  .soso-bg {
+    width: 262px;
+    padding: 5px 0;
+    background: rgba(255,255,255,.9);
+    border-radius: 4px 4px 0 0;
+
+    .soso-text {
+      width: 252px;
+      height: 26px;
+      margin: 5px auto;
+      border: 1px solid #cdd0d2;
+      border-radius: 4px;
+      overflow: hidden;
+      input {
+        display: block;
+        width: 210px;
+        height: 24px;
+        padding-left: 10px;
+        background: #f5fbfe;
+        border-right: 1px solid #cdd0d2;
+      }
+      .delete-icon {
+        position: absolute;
+        right: 40px;
+        top: 16px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .soso-icon {
+        line-height: 24px;
+        width: 28px;
+        height: 24px;
+        text-align: center;
+        font-size: 24px;
+        cursor: pointer;
+      }
+    }
+  }
+  .soso-content {
+    p {
+      line-height: 30px;
+      text-indent: 10px;
+      cursor: pointer;
+    }
+  }
+}
