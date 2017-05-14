@@ -1,0 +1,230 @@
+.map-ctl {
+  position: absolute;
+  right: 12px;
+  top: 56px;
+  z-index: 1;
+  span {
+    display: block;
+    width: 32px;
+    height: 32px;
+    color: #656565;
+  }
+  .center-ctl {
+    position: fixed;
+    top: 104px;
+    display: block;
+    background: #72a7fc;
+    text-align: center;
+    i {
+      font-size: 24px;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      color: #4b4a4a;
+      &:hover {
+        color: #6ea265;
+      }
+    }
+  }
+  .layer-ctl {
+    display: block;
+    cursor: pointer;
+    text-align: center;
+    background: #72a7fc;
+    img {
+      margin-top: 5px;
+    }
+  }
+
+  .zoom-ctl {
+    position: relative;
+    top: 50px;
+    overflow: hidden;
+    span {
+      display: block;
+      width: 32px;
+      height: 31px;
+      font-size: 22px;
+      color: #4a4a4a;
+      text-align: center;
+      background: #fff;
+      cursor: pointer;
+      &:hover {
+        color: #6ea265;
+      }
+    }
+    .zoom-in {
+      border-bottom: 1px solid #999;
+    }
+  }
+}
+
+.lonlat {
+  position: fixed;
+  width: 220px;
+  height: 53px;
+  background: #fff;
+  z-index: 1;
+  color: #6c6c6c;
+  text-align: center;
+      
+  .lonlat-tip {
+    text-align: center;
+    line-height: 12px;
+    padding: 6px;
+  }
+  .lonlat-str {
+    padding: 7px 10px;
+    height: 12px;
+    line-height: 13px;
+    color: #e95616;
+    background: #f4fdec;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(156, 156, 156, 0.32);
+  }
+}
+
+.altitude {
+  position: fixed;
+  height: 20px;
+  padding: 3px 10px 1px 8px;
+  background: #fff;
+  z-index: 1;
+  border: 1px solid #666;
+  opacity: 0.9;
+  color: #333;
+}
+
+.tooltip {
+  position: relative;
+  background: #fff;
+  border-radius: 4px;
+  color: #333;
+  padding: 4px 8px;
+  opacity: 0.9;
+  white-space: nowrap;
+  border: 1px solid #666;
+}
+
+.tooltip-measure {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+.tooltip-static {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #666;
+}
+.measure-close {
+  position: relative;
+  width: 13px;
+  height: 14px;
+  top: -1px;
+  line-height: 13px;
+  padding: 1px 2px 1px 1px;
+  margin-left: 10px;
+  border-radius: 12px;
+  color: #fc1426;
+  border: 1px solid #fc1426;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+
+  &:hover {
+    &:after {
+      content: attr(data-tip);
+      position: absolute;
+      margin-left: -60px;
+      margin-top: -35px;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, .7);
+      padding: 4px 8px;
+      color: #333;
+      border-radius: 4px;
+      border: 1px solid #999;
+    }
+  }
+    
+}
+.map-tools {
+  position: fixed;
+  top: 56px;
+  right: 50px;
+  z-index: 2;
+  margin-left: 6px;
+  cursor: pointer;
+    i {
+      margin-right: 12px;
+      color: #959595;
+      font-weight: bold;
+    }
+    p {
+      height: 30px;
+      line-height: 30px;
+      width: 80px;
+      background: #fff;
+      &:hover {
+        color: #6ea265;
+          i {
+            color: #6ea265;
+          }
+        }
+    i {
+     font-size: 14px;
+      margin-left: 12px;
+      margin-right: 6px;
+      color: #959595;
+    }
+    span {
+      margin-left: 6px;
+    }
+  }
+    ul {
+      margin-top: 5px;
+      overflow: hidden;
+      .active,.active:hover {
+        background: linear-gradient(top, #effdd7, #e3f8bc);
+        background: -o-linear-gradient(top, #effdd7, #e3f8bc);
+        background: -moz-linear-gradient(top, #effdd7, #e3f8bc);
+        background: -webkit-linear-gradient(top, #effdd7, #e3f8bc);
+      }
+      li {
+        height: 26px;
+        line-height: 26px;
+        padding: 0 8px;
+        background: #fff;
+        &:hover {
+         background: #efefef;
+         color: #6ea265;
+         i {
+          color: #6ea265;
+         }
+        }
+      }
+    }
+}
+.tooltip-opacity {
+  background: rgba(31,45,61,.7) !important;
+}
+.tip-arrow-bottom {
+  position: absolute;
+  display: block;
+  border-color: transparent;
+  border-style: solid;
+  left: 50%;
+  bottom: -12px;
+  margin-left: -3px;
+  border-top-color: #fff;
+  border-bottom-width: 0;
+  border-width: 6px;
+}
+.altitude-popup {
+  position: relative;
+  background: #fff;
+  width: 70px;
+  height: 18px;
+  cursor: default;
+  padding: 4px 10px;
+}

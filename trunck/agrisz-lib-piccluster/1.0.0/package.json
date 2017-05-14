@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-lib-piccluster",
+  "version": "1.0.0",
+  "description": "the pictures cluster of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

@@ -1,0 +1,51 @@
+.photo-zoom {
+	.photo-zoom-title {
+			font-size: 16px;
+		}
+	.zoom-button {
+			top: 20px;
+    		right: 32px;
+			background: rgba(255,255,255,.7);
+			border-radius: 4px;
+			z-index: 5;
+			span {
+				font-size: 18px;
+				position: relative;
+				width: 36px;
+				height: 30px;
+				line-height: 30px;
+				color: #8f8d8b;
+				text-align: center;
+				cursor: pointer;
+				&:first-child:after {
+					position: absolute;
+					right: 0;
+					content: "";
+					width: 1px;
+					height: 30px;
+					background: #a6a699;
+					vertical-align: middle;
+					display: inline-block;
+				}
+			}
+		}
+	.photo-zoom-content {
+		margin: 0 12px 12px;
+		overflow: auto;
+		img {
+			overflow-x: hidden;
+			display: block;
+			padding-bottom: 11px;
+			transition: all 0.3s ease-out;
+		}
+	}
+	.zoom-content {
+	 top: -6px;
+	 .zoom-line {
+	 	width: 100%;
+	 	height: 1px;
+	 	background: #cbcbcb;
+	 	margin-bottom: 12px;
+	 }
+	}
+}

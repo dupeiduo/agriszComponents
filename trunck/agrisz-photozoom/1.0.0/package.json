@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-photozoom",
+  "version": "1.0.0",
+  "description": "the photo zoom of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

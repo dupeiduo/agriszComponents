@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-lib-model",
+  "version": "1.0.0",
+  "description": "the model of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

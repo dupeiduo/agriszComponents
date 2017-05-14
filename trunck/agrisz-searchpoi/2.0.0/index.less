@@ -1,0 +1,116 @@
+.soso {
+  position: fixed;
+  top: 50px;
+  width: 244px;
+
+  .soso-bg {
+    width: 242px;
+
+    .soso-text {
+      height: 30px;
+      margin: 6px auto;
+      overflow: hidden;
+      .search-btn-con {
+        &:hover {
+          .soso-icon,.soso-words {
+            color: #6ea265;
+          }
+        }
+      }
+      input {
+        display: block;
+        width: 170px;
+        height: 30px;
+        padding-left: 10px;
+        background: #fff;
+        border-right: 1px solid #cdd0d2;
+      }
+      .delete-icon {
+        position: absolute;
+        left: 158px;
+        top: 6px;
+        width: 14px;
+        height: 14px;
+        line-height: 14px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 12px;
+        border: 1px solid #c8c8c8;
+        border-radius: 50%;
+        color: #c8c8c8;
+      }
+      .soso-icon {
+        line-height: 30px;
+        width: 55px;
+        height: 30px;
+        font-size: 18px;
+        padding-left: 6px;
+        cursor: pointer;
+        color: #888888;
+        background: #eee;
+      }
+      .soso-words {
+        right: 10px;
+        top: 7px;
+        cursor: pointer;
+      }
+    }
+  }
+  .soso-content {
+    padding-bottom: 10px;
+    overflow: hidden;
+    background: #fff;
+    .empty-data {
+      line-height: 32px;
+      padding-left: 10px;
+      color: #62815b;
+      background: #fff;
+      border-bottom: 1px solid #cdd0d2;
+      cursor: pointer;
+    }
+    .active,.active:hover {
+      background: linear-gradient(top, #effdd7, #e3f8bc);
+      background: -o-linear-gradient(top, #effdd7, #e3f8bc);
+      background: -moz-linear-gradient(top, #effdd7, #e3f8bc);
+      background: -webkit-linear-gradient(top, #effdd7, #e3f8bc);
+    }
+    p {
+      line-height: 30px;
+      padding-left: 10px;
+      cursor: pointer;
+      &:hover {
+        background: #eee;
+      }
+    }
+  }
+}
+.soso-popover-text {
+  padding: 0px !important;
+  font-size: 14px !important;
+  min-width: 36px !important;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+}
+.soso-marker-tip {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background: #fff;
+
+  p {
+    padding: 4px 10px;
+  }
+
+  .tip-arrow-bottom {
+    position: absolute;
+    display: block;
+    border-color: transparent;
+    border-style: solid;
+    left: 50%;
+    bottom: -12px;
+    margin-left: -6px;
+    border-top-color: #fff;
+    border-bottom-width: 0;
+    border-width: 6px;
+  }
+}

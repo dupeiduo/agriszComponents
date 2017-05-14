@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-searchpoi",
+  "version": "2.0.0",
+  "description": "the searchpoi of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

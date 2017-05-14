@@ -1,0 +1,295 @@
+.pointer {
+  cursor: pointer;
+}
+.weather-tool-common {
+  position: absolute;
+  .sunlight-icon,
+  .wind-icon {
+      color:#c6b56d;
+    }
+  .moisture-icon {
+    color:#77c2e8;
+  }
+  .PM-icon {
+    color: #a49059;
+  }
+  .cloud-icon {
+    color: #7a9541;
+  }
+  .radio-icon {
+    color: #376786;
+  }
+  .weather-brief {
+    position: relative;
+    width: 165px;
+    height: 30px;
+    line-height: 30px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+    z-index: 1;
+
+    .fore-loading-container {
+      text-align:  center;
+      .fore-loading-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        margin-right: 15px;
+      }
+      .fore-loading-content {
+        font-size: 14px;
+      }
+    }
+    .no-data-container {
+      text-align:  center;
+      
+      .no-data-content {
+        font-size: 14px;
+      }
+    }
+
+    .weather-icon {
+      position: relative;
+      top: -1px;
+      font-weight: bold;
+      margin: 0 6px;
+      &:hover {
+        font-weight: 500;
+        color: #4d9640;
+      }
+    }
+    .temprature {
+      top: -2px;
+      &:hover {
+        font-weight: 500;
+        color: #4d9640;
+      }
+    }
+    .split-line {
+      font-size: 18px;
+      color: #9d9b9b;
+      margin: 6px 8px;
+    }
+    .area-name {
+      width: 50px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+  .weather-detail {
+    position: absolute;
+    width: 264px;
+    height: 500px;
+    z-index: 2;
+    background: #fff;
+    margin-top: 5px;
+    padding: 0 8px;
+    ul {
+      overflow: hidden;
+      border: 1px solid #889565;
+      border-radius: 4px;
+      margin: 8px 0;
+      .active {
+        background: #fff;
+      }
+      li {
+        position: relative;
+        float: left;
+        width: 87px;
+        height: 26px;
+        text-align: center;
+        line-height: 26px;
+        background: #f4fede;
+        cursor: pointer;
+        &:nth-child(1):after, 
+        &:nth-child(2):after {
+          position: absolute;
+          right: 0px;
+          content: '';
+          width: 1px;
+          height: 26px;
+          background: #a9bb82;
+          vertical-align: middle;
+          display: inline-block;
+        }
+
+        &:hover {
+          background: #e5fecd;
+        }
+      }
+    }
+    .real-time-wrap {
+      border-bottom: 1px solid #dbe2d8;
+      .real-time {
+         width: 170px;
+          .real-time-name {
+            font-weight: normal;
+            font-size: 80px;
+          }
+          .real-time-degree {
+            font-size: 20px;
+            left: 100px;
+            top: 8px;
+          }
+          .real-time-status {
+            font-size: 16px;
+            left: 106px;
+            bottom: 18px;
+          }
+      }
+      .real-time-right {
+        left: 156px;
+        top: 0;
+        span {
+          display: block;
+          line-height: 26px;
+            .icon-shidu {
+              position: relative;
+              top: -2px;
+            }
+            i {
+              font-size: 20px;
+              margin-right: 9px;
+              vertical-align: middle;
+            }
+        }
+      }
+      .warn-info {
+        width: 280px;
+        font-size: 14px;
+        position: absolute;
+        left: -8px;
+        top: 100px;
+        color: red;
+        background: #fff;
+        border-radius: 0px 0px 4px 4px;
+        overflow: hidden;
+        padding: 6px 0;
+        p {
+          padding: 0 20px 0 36px;
+          text-align: center;
+        }
+      }
+      .real-time-introduce {
+        font-size: 14px;
+        position: absolute;
+        bottom: -33px;
+        width: 262px;
+        text-align: center;
+        i {
+            color: #1c8ef8;
+        }
+        span {
+          font-size: 18px;
+          margin-left: 8px;
+          vertical-align: middle;
+        }
+      }
+    }
+    .forty-eight-prediction {
+     .forty-eight-button {
+        position: absolute;
+        right: 0px;
+        top: 4px;
+        width: 60px;
+        height: 18px;
+        border: 1px solid #4572be;
+        border-radius: 2px;
+        .active {
+          background: #4572be;
+          color: #fff;
+          &:hover {
+            background: #4572be;
+          }
+        }
+        span {
+          float: left;
+          width: 30px;
+          height: 18px;
+          line-height: 18px;
+          text-align: center;
+          cursor: pointer;
+          &:hover {
+            background: #eaedfb;
+          }
+        }
+     }
+     .tempreture {
+      position: absolute;
+      left: 0px;
+      top: 22px;
+      height: 184px;
+      width: 264px;
+      overflow: hidden;
+      .position-icons {
+        width: 210px;
+        height: 34px;
+        position: absolute;
+        left: 27px;
+        bottom: 55px;
+        overflow: hidden;
+        .allicons-length {
+            left: 0;
+            span {
+              float: left;
+              width: 70px;
+              height: 35px;
+              text-align: center;
+              i {
+                display: block;
+                position: relative;
+                top: 4px;
+              }
+            }
+        }
+      }
+     }
+    }
+    .five-prediction {
+      height: 220px;
+      overflow: hidden;
+      .five-echart {
+      margin-top: 35px;
+      }
+      .five-prediction-title {
+          width: 260px;
+          height: 76px;
+          left: 8px;
+          top: 44px;
+          margin-bottom: 30px;
+          overflow: hidden;
+        .five-prediction-length {
+          left: 0;
+          .five-week {
+           margin-bottom: 4px;
+           padding-bottom: 4px;
+           border-bottom: 1px solid #dddddd;
+          }
+          .five-header {
+            span {
+              width: 52px;
+              height: 34px;
+              text-align: center;
+              float: left; 
+              i {
+              display: block;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .echart {
+    width: 270px;
+    height: 200px;
+  }
+}
+.morecolor-cloud {
+  width: 25px;
+  left: 2%;
+  z-index: 2;
+}

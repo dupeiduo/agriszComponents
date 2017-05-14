@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-opactl",
+  "version": "2.0.0",
+  "description": "the opacity ctl of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

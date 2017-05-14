@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-lib-request",
+  "version": "1.0.0",
+  "description": "the request of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}
