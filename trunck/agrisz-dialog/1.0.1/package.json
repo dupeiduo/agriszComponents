@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-dialog",
+  "version": "1.0.1",
+  "description": "the dialog of program for da hua",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

@@ -30,8 +30,173 @@
     text-align: center;
     border-radius: 4px;
     background: #72a7fc;
-      img {
-        margin-top: 5px;
-      }
+    img {
+      margin-top: 5px;
+    }
+  }
+
+  .zoom-ctl {
+    position: relative;
+    top: 60px;
+
+    span {
+      display: block;
+      width: 20px;
+      height: 20px;
+      font-size: 16px;
+      color: #999;
+      text-align: center;
+      background: #fff;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .zoom-in {
+      border-bottom: 1px solid #999;
+    }
   }
 }
+
+.lonlat {
+  position: fixed;
+  width: 220px;
+  height: 53px;
+  background: #fff;
+  z-index: 1;
+  color: #6c6c6c;
+  border-radius: 4px;
+  text-align: center;
+  .lonlat-tip {
+    text-align: center;
+    line-height: 12px;
+    padding: 6px;
+  }
+  .lonlat-str {
+    padding: 7px 10px;
+    height: 12px;
+    line-height: 13px;
+    color: #e95616;
+    background: #f4fdec;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(156, 156, 156, 0.32);
+  }
+}
+
+.altitude {
+  position: fixed;
+  height: 20px;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px dashed rgba(156, 156, 156, 0.32);
+  z-index: 1;
+}
+
+.tooltip {
+  position: relative;
+  background: #fff;
+  border-radius: 4px;
+  color: #333;
+  padding: 4px 8px;
+  opacity: 0.9;
+  white-space: nowrap;
+  border: 1px solid #666;
+}
+
+.tooltip-measure {
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+.tooltip-static {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #666;
+}
+.measure-close {
+  position: relative;
+  top: -2px;
+  width: 11px;
+  height: 14px;
+  line-height: 14px;
+  padding: 0 0 0px 3px;
+  margin-left: 10px;
+  border-radius: 12px;
+  color: #fc1426;
+  border: 1px solid #fc1426;
+  display: inline-block;
+  cursor: pointer;
+  &:hover {
+    &:after {
+      content: attr(data-tip);
+      position: absolute;
+      margin-left: -60px;
+      margin-top: -35px;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, .7);
+      padding: 4px 8px;
+      color: #333;
+      border-radius: 4px;
+      border: 1px solid #999;
+    }
+  }
+    
+}
+.map-tools {
+  position: fixed;
+  top: 80px;
+  right: 50px;
+  z-index: 2;
+  margin-left: 6px;
+  cursor: pointer;
+    i {
+      margin-right: 12px;
+    }
+    p {
+      height: 30px;
+      line-height: 30px;
+      width: 80px;
+      background: #fff;
+      border-radius: 4px;
+    i {
+      margin-left: 12px;
+      margin-right: 6px;
+    }
+    span {
+      margin-left: 6px;
+    }
+  }
+    ul {
+      margin-top: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+      .active,.active:hover {
+        background: linear-gradient(top, #effdd7, #e3f8bc);
+        background: -o-linear-gradient(top, #effdd7, #e3f8bc);
+        background: -moz-linear-gradient(top, #effdd7, #e3f8bc);
+        background: -webkit-linear-gradient(top, #effdd7, #e3f8bc);
+      }
+      li {
+        height: 26px;
+        line-height: 26px;
+        padding: 0 8px;
+        background: #fff;
+        &:hover {
+         background: #efefef
+        }
+      }
+    }
+}
+// .tooltip-measure:before,
+// .tooltip-static:before {
+//   border-top: 6px solid #fff;
+//   border-right: 6px solid transparent;
+//   border-left: 6px solid transparent;
+//   content: "";
+//   position: absolute;
+//   bottom: -6px;
+//   margin-left: -7px;
+//   left: 50%;
+// }
+
+// .tooltip-static:before {
+//   border-top-color: #fff;
+// }

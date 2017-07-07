@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-iconfont",
+  "version": "1.0.0",
+  "description": "the iconfont of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

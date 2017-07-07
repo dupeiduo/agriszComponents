@@ -31,12 +31,14 @@
 		}
 	.photo-zoom-content {
 		margin: 0 12px 12px;
-		overflow: auto;
+		overflow: hidden;
 		img {
-			overflow-x: hidden;
-			display: block;
-			padding-bottom: 11px;
+			position: absolute;
+			width: 100%;
 			transition: all 0.3s ease-out;
+			cursor: move;
+			left: 0px;
+			top: 0px;
 		}
 	}
 	.zoom-content {

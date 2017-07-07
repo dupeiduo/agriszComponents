@@ -1,8 +1,11 @@
 .pointer {
   cursor: pointer;
 }
+.font14 {
+  font-size: 14px;
+}
 .weather-tool-common {
-  position: absolute;
+  position: fixed;
   .sunlight-icon,
   .wind-icon {
       color:#c6b56d;
@@ -72,6 +75,8 @@
       margin: 6px 8px;
     }
     .area-name {
+      right: 7px;
+      top: 0;
       width: 50px;
       overflow: hidden;
       white-space: nowrap;
@@ -80,43 +85,54 @@
   }
   .weather-detail {
     position: absolute;
+    right: 0;
     width: 264px;
     height: 500px;
     z-index: 2;
     background: #fff;
     margin-top: 5px;
-    padding: 0 8px;
-    ul {
-      overflow: hidden;
-      border: 1px solid #889565;
-      border-radius: 4px;
-      margin: 8px 0;
+    .weather-menu {
+      position: relative;
+      height: 44px;
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0px;
+        left: 0;
+        width: 264px;
+        height: 4px;
+        border-bottom: 4px solid #e5e5e5;
+      }
       .active {
-        background: #fff;
+        z-index: 2;
+        position: relative;
+        color: #333;
+        border-bottom: 4px solid #97cb6f;
+        .tool-pop-arrow {
+          display: block;
+        }
       }
       li {
-        position: relative;
-        float: left;
-        width: 87px;
-        height: 26px;
-        text-align: center;
-        line-height: 26px;
-        background: #f4fede;
-        cursor: pointer;
-        &:nth-child(1):after, 
-        &:nth-child(2):after {
-          position: absolute;
-          right: 0px;
-          content: '';
-          width: 1px;
-          height: 26px;
-          background: #a9bb82;
-          vertical-align: middle;
-          display: inline-block;
-        }
-
+          float: left;
+          overflow: hidden;
+          box-sizing: border-box;
+          padding: 10px 14px;
+          font-size: 14px;
+          color: #a4a4a4;
+          cursor: pointer;
+          border-bottom: 4px solid #e5e5e5;
+          .tool-pop-arrow {
+            left: 34px;
+            bottom: -0;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 5px solid #97cb6f;
+            display: none;
+          }
         &:hover {
-          background: #e5fecd;
+          color: #3e3e3e;
         }
       }
     }
@@ -127,21 +143,22 @@
           .real-time-name {
             font-weight: normal;
             font-size: 80px;
+            margin-left: 6px;
           }
           .real-time-degree {
             font-size: 20px;
             left: 100px;
-            top: 8px;
+            top: 18px;
           }
           .real-time-status {
             font-size: 16px;
             left: 106px;
-            bottom: 18px;
+            bottom: 15px;
           }
       }
       .real-time-right {
         left: 156px;
-        top: 0;
+        top: 5px;
         span {
           display: block;
           line-height: 26px;
@@ -157,10 +174,8 @@
         }
       }
       .warn-info {
-        width: 280px;
         font-size: 14px;
         position: absolute;
-        left: -8px;
         top: 100px;
         color: red;
         background: #fff;
@@ -188,95 +203,88 @@
         }
       }
     }
-    .forty-eight-prediction {
-     .forty-eight-button {
-        position: absolute;
-        right: 0px;
-        top: 4px;
-        width: 60px;
-        height: 18px;
-        border: 1px solid #4572be;
-        border-radius: 2px;
-        .active {
-          background: #4572be;
-          color: #fff;
-          &:hover {
-            background: #4572be;
-          }
+    .five-prediction {
+      overflow: hidden;
+      .weather-forecast {
+        height: 30px;
+        line-height: 30px;
+        padding: 0 25px 0 15px;
+        background: #f4ffe9;
+        border-bottom: 1px solid #d2d2d2;
+        .status {
+          margin-left: 40px;
         }
         span {
+          font-weight: bolder;
+          i {
+            font-weight: normal;
+            vertical-align: middle;
+            margin-right: 4px;
+          }
+        }
+      }
+      .weather-time {
+        width: 358px;
+        margin: 0 18px;
+        padding:12px 0;
+        overflow: hidden;
+        li {
           float: left;
-          width: 30px;
-          height: 18px;
-          line-height: 18px;
+          margin: 0px 5px;
           text-align: center;
+          em,i,span {
+            display: block
+          }
+          i {
+            margin: 6px 0;
+          }
+        }
+      }
+      .week-weather {
+        border-top: 1px solid #d2d2d2;
+        border-bottom: 1px solid #d2d2d2;
+        li {
+          height: 26px;
+          line-height: 26px;
+          margin: 0 10px;
+          border-bottom: 1px dotted #d2d2d2;
+          padding: 0 15px 0 5px;
+          clear: both;
+          span {
+            font-weight: bolder;
+            i {
+            font-weight: normal;
+            }
+          }
+          .status {
+            margin-left: 40px;
+            i {
+              vertical-align: middle;
+              margin-right: 8px;
+            }
+          }
+          &:last-child{
+            border-bottom: 1px dotted #fff;
+          }
+        }
+      }
+      .weather-icon {
+        height: 34px;
+        line-height: 34px;
+        padding: 0 10px;
+        img {
+          width: 30px;
+        }
+        .more-weather {
+          line-height: 34px;
+          color: #6c9f00;
+          text-decoration: underline;
           cursor: pointer;
           &:hover {
-            background: #eaedfb;
+            color: #7eb902;
           }
-        }
-     }
-     .tempreture {
-      position: absolute;
-      left: 0px;
-      top: 22px;
-      height: 184px;
-      width: 264px;
-      overflow: hidden;
-      .position-icons {
-        width: 210px;
-        height: 34px;
-        position: absolute;
-        left: 27px;
-        bottom: 55px;
-        overflow: hidden;
-        .allicons-length {
-            left: 0;
-            span {
-              float: left;
-              width: 70px;
-              height: 35px;
-              text-align: center;
-              i {
-                display: block;
-                position: relative;
-                top: 4px;
-              }
-            }
-        }
-      }
-     }
-    }
-    .five-prediction {
-      height: 220px;
-      overflow: hidden;
-      .five-echart {
-      margin-top: 35px;
-      }
-      .five-prediction-title {
-          width: 260px;
-          height: 76px;
-          left: 8px;
-          top: 44px;
-          margin-bottom: 30px;
-          overflow: hidden;
-        .five-prediction-length {
-          left: 0;
-          .five-week {
-           margin-bottom: 4px;
-           padding-bottom: 4px;
-           border-bottom: 1px solid #dddddd;
-          }
-          .five-header {
-            span {
-              width: 52px;
-              height: 34px;
-              text-align: center;
-              float: left; 
-              i {
-              display: block;
-              }
-            }
+          i {
+            font-size: 12px;
           }
         }
       }

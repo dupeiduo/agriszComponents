@@ -5,7 +5,7 @@ module.exports = function (request) {
   return {
     name: 'agrisz-weather',
     prop: {
-      template: `<div class="weather-tool-common" :style="{top: top + 'px', right: right + 'px'}">
+      template: `<div class="weather-tool-common map-zIndex" :style="{top: top + 'px', right: right + 'px'}">
                   <div class="weather-brief">
                     <template v-if="loading">
                       <div class="fore-loading-container">
@@ -32,15 +32,17 @@ module.exports = function (request) {
                       </el-tooltip>
                     </template>
                   </div>
-                  <div v-if="showDetail" class="weather-detail border-common-radius box-common-shadow pr" :style="{height: panelHeight + 'px'}">
-                    <img class="morecolor-cloud ps" :style="{bottom: panelBottom + '%'}" src="/static/assets/img/weather/morecolor-cloud.png"/>
-                    <ul>
-                      <li class="no-select" v-for="(item, index) in panelList" 
+                  <div v-if="showDetail" class="weather-detail border-common-radius box-common-shadow pr clear" :style="{height: panelHeight + 'px'}">
+                    <ul class="weather-menu">
+                      <li class="no-select pr" v-for="(item, index) in panelList" 
                         @click="openPanel(index)"
                         :class="panelIndex === index ? 'active': ''"
-                        :label="item.label" :name="item.name">{{item.label}}</li>
+                        :label="item.label" :name="item.name">
+                        <span class="tool-pop-arrow ps"></span>
+                        {{item.label}}
+                      </li>
                     </ul>
-
+                    <img class=" morecolor-cloud ps" src="/static/assets/img/weather/morecolor-cloud.png" :style="{bottom: panelBottom + '%'}"/>
                     <div v-if="panelIndex === 0" class="real-time-wrap pr">
                       <div class="real-time pr">
                        <h3 class="real-time-name">{{temperature | toFixedZero}}</h3>
@@ -48,9 +50,9 @@ module.exports = function (request) {
                        <span class="real-time-status ps cloud-icon">{{realtimeSkycon}}</span>
                       </div>
                       <p class="real-time-right ps">
-                        <span><i class="iconfont icon-fengxiang wind-icon"></i>{{windContent}}</span>
-                        <span><i class="iconfont icon-shidu moisture-icon"></i>湿度 {{humidity}}</span>
-                        <span style="margin-left: 4px;position: relative; top: -2px">AQI:&nbsp;&nbsp;<em :style="{color: pm25.color}">{{pm25.content}}</em></span>
+                        <span><i class="iconfont icon-fengxiang wind-icon"></i><em v-html="windContent"></em></span>
+                        <span><i class="iconfont icon-shidu moisture-icon"></i>湿度 <b>{{humidity}}</b></span>
+                        <span style="position: relative; top: -2px">AQI:&nbsp;&nbsp;<em :style="{color: pm25.color}">{{pm25.content}}</em></span>
                       </p>
                       <div v-if="warnInfo.exist" class="warn-info">
                         <template  v-for="item in warnInfo.content">
@@ -61,41 +63,39 @@ module.exports = function (request) {
                         {{forecastContentBefore}}<i>{{forecastContentAfter}}</i><span class="iconfont" :class="forecastIcon" :style="{color: forecastColor}"></span>
                       </div>
                     </div>
-                    <div v-else-if="panelIndex === 1" class="forty-eight-prediction pr">
-                      <p class="forty-eight-button clear no-select">
-                        <span @click="temShow = true" :class="temShow ? 'active' : ''">气温</span>
-                        <span @click="temShow = false" :class="!temShow ? 'active' : ''">风向</span>
-                      </p>
-                      <div v-if="temShow" class="tempreture">
-                        <my-echart  class="echart" 
-                          :options="tempChartData" 
-                          @datazoom="datazoomEvent"
-                          ></my-echart>
-                          <div class="position-icons">
-                            <div class="allicons-length ps clear" :style="{width:totalWidth + 'px',left: iconsPosition + 'px'}">
-                               <span v-for="(item,index) in weaChangeIcon"><i class="iconfont" :class="item.icon" :style="{color: item.color}"></i>{{item.name}}</span>
-                            </div>
-                          </div>
+                    <div v-else-if="panelIndex === 1" class="five-prediction">
+                      <div class="weather-forecast clear">
+                        <span class="fl font14">今天</span>
+                        <span class="fl status">
+                          <i class="iconfont" 
+                             :class="detailData[0].icon"
+                             :style="{color: detailData[0].color}"
+                             >
+                          </i>{{detailData[0].name}}</span>
+                        <em class="fr">{{detailData[0].min}}℃ 到 {{detailData[0].max}}℃</em>
                       </div>
-                      <div v-else class="tempreture">
-                        <my-echart  class="echart" 
-                          :options="windChartData"></my-echart>
+                      <ul class="weather-time clear">
+                          <li v-for="(item,index) in weatherTime">
+                            <em>{{index === 0 ? '现在':item.hourly + '点'}}</em>
+                            <i class="iconfont" :class="item.icon" :style="{color:item.color}"></i>
+                            <span>{{item.tem.toFixed(0)}}℃</span>
+                          </li>
+                      </ul>
+                      <ul class="week-weather">
+                        <li v-for="item in detailData.slice(1)" class="clear">
+                          <span class="fl font14">{{item.week}}</span>
+                          <span class="fl status">
+                            <i class="iconfont" 
+                               :class="item.icon"
+                               :style="{color: item.color}"
+                               >
+                            </i>{{item.name}}</span>
+                          <em class="fr">{{item.min}}℃ 到 {{item.max}}℃</em>
+                        </li>
+                      </ul>
+                      <div class="clear weather-icon">
+                        <router-link :to="'/weather?position='+center.join(',')+'&zoom='+zoom" class="more-weather fr">更多预报<i class="iconfont icon-icon-copy-copy"></i></router-link>
                       </div>
-                    </div>
-                    <div v-else-if="panelIndex === 2" class="five-prediction">
-                    <div class="five-prediction-title ps">
-                     <div class="five-prediction-length ps" :style="{width: detailTotalWidth + 'px',left: detailiconsPosition + 'px'}">
-                        <p class="five-week five-header clear">
-                           <span v-for="(item,index) in detailData">{{item.week}}<i>{{item.date}}</i></span>
-                        </p>
-                        <p class="five-header clear"> 
-                          <span v-for="(item,index) in detailData"><i class="iconfont" :class="item.icon" :style="{color: item.color}"></i>{{item.name}}</span>
-                        </p>
-                     </div>
-                    </div>
-                      <my-echart  class="echart five-echart" 
-                          @datazoom="dailyZoomEvent"
-                          :options="fiveDaysChartData"></my-echart>
                     </div>
                     <div v-else>
                       -出错了啦！-
@@ -140,13 +140,9 @@ module.exports = function (request) {
               name: "first"
             },
             {
-              label: "48小时预报",
+              label: "天气预报",
               name: "second"
-            },
-            {
-              label: "五天预报",
-              name: "third"
-            },
+            }
           ],
           windContent: "", //风向
           humidity: 0, // 湿度
@@ -164,8 +160,6 @@ module.exports = function (request) {
           forecastIcon: "icon-tianqitubiao_dongyu",
           forecastColor: "#376786",
 
-          temShow: true,
-
           warnInfo: {
             exist: false,
             warnContent: ''
@@ -181,7 +175,6 @@ module.exports = function (request) {
           totalWidth: 0,
 
           rainLevel: 0,
-          weaChangeIcon: [],
 
           detailTotalWidth: 0,
           detailiconsPosition: 0,
@@ -192,7 +185,9 @@ module.exports = function (request) {
           noData: false,
           realtimeReq: null,
           forecastReq: null,
-          positionReq: null
+          positionReq: null,
+          detaiData: [],
+          weatherTime: []
         };
       },
       mounted() {},
@@ -258,7 +253,7 @@ module.exports = function (request) {
           this.temperature = data.temperature
           this.pm25 = echart.getAqi(data.aqi)
           this.humidity = Number(data.humidity * 100).toFixed(0) + '%'
-          this.windContent = echart.getWindContent(data.wind.direction, data.wind.speed)
+          this.windContent = echart.getBoldWindContent(data.wind.direction, data.wind.speed)
           
           var rain = data.precipitation.local.intensity
           this.renderRainInfo(rain, data.skycon)
@@ -299,59 +294,42 @@ module.exports = function (request) {
         setChartsData(data) {
           var tempChartInfo = echart.getTempChartData(data.hourly)
           this.tempChartData = tempChartInfo.options
-          this.renderChangeIcons(tempChartInfo.icons)
 
           this.windChartData = echart.getWindChartData(data.hourly.wind)
 
           var fiveDaysInfo = echart.getFiveDaysChartData(data.daily)
           this.fiveDaysChartData = fiveDaysInfo.options
           this.detailData = fiveDaysInfo.xTitle
+          this.dailyData = data.daily.temperature
+          this.weatherTime = []
+          
+          var hourIndexs = [0, 5, 10, 15, 20, 25]
+          for (var i = 0; i < hourIndexs.length; i++) {
+            var _skycon = data.hourly.skycon[hourIndexs[i]].value
+            echart.setCurrentSkycon(_skycon)
+            var dateStr = data.hourly.temperature[hourIndexs[i]].datetime
+            var hourly = this.getHour(dateStr)
+            var tem = data.hourly.temperature[hourIndexs[i]].value
+            var name = echart.getSkyconZh()
+            var icon = echart.getSkyconIcon()
+            var color = echart.getSkyconColor()
+            this.weatherTime.push({hourly, tem, name, icon, color})
+          }
+          for(var i = 0;i < this.detailData.length; i++){
+            this.detailData[i].min = this.dailyData[i].min.toFixed(0)
+            this.detailData[i].max = this.dailyData[i].max.toFixed(0)
+          } 
           this.dailyLen = data.daily.temperature.length
         },
-        datazoomEvent(params) {
-          console.log(params, params.startValue)
-          this.setIconsPosition(params.start);
+        getHour(dateStr) {
+          var time = dateStr.split(' ')[1]
+          var hour = time.split(':')[0]
+          hour = parseInt(hour)
+
+          return hour
         },
         dailyZoomEvent(params) {
           this.setTitleIconPosition(params.start)
-        },
-        renderChangeIcons(icons) {
-          this.weaChangeIcon = []
-
-          for (var i = 0; i < icons.length; i++) {
-            var obj = {
-              name: "",
-              icon: ""
-            }
-            if (icons[i] === "") {
-              this.weaChangeIcon.push(obj)
-
-            } else {
-              echart.setCurrentSkycon(icons[i])
-              obj = {
-                name: echart.getSkyconZh(),
-                icon: echart.getSkyconIcon(),
-                color: echart.getSkyconColor()
-              }
-              this.weaChangeIcon.push(obj)
-            }
-          }
-          this.iconsPosition = 0
-        },
-        setIconsPosition(start) {
-          var len = this.weaChangeIcon.length,
-            width = 210,
-            inscreen = 3,
-            eachWidth = width / inscreen,
-            relativeWidth = eachWidth * len  * start / 100,
-            moveLength = this.iconsPosition + relativeWidth
-
-          console.log(this.iconsPosition, relativeWidth, eachWidth)
-          
-          if (moveLength * 3 > eachWidth || moveLength * 3 < -eachWidth) {
-            this.totalWidth = eachWidth * len;
-            this.iconsPosition = -(this.totalWidth * start / 100)
-          }
         },
         setTitleIconPosition(start) {
           var len = this.dailyLen,
@@ -410,19 +388,16 @@ module.exports = function (request) {
         togglePanel(index) {
           this.$emit('toggleWeaDetail', !this.showDetail)
           this.openPanel(index)
+          console.log(index)
         },
         openPanel(index) {
           this.panelIndex = index
           if (index === 0) {
             this.panelHeight = 180
             this.panelBottom = 4
-          } else if(index === 1) {
-            this.setIconsPosition(0)
-            this.panelHeight = 260
-            this.panelBottom = 2
           } else {
             this.setTitleIconPosition(0)
-            this.panelHeight = 274
+            this.panelHeight = 306
             this.panelBottom = 2
           }
         },

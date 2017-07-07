@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-lib-modis",
+  "version": "1.0.0",
+  "description": "the lib modis of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

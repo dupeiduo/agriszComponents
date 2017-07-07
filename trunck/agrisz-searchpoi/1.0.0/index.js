@@ -171,7 +171,7 @@ module.exports = function (request) {
             }))
           });
           source.forEachFeature(function (feature) {
-            if (feature.G.id == id) {
+            if (feature.getProperties().id == id) {
               feature.setStyle(style)
             } else {
               feature.setStyle(defaultStyle)

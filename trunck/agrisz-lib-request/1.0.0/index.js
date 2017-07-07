@@ -1,5 +1,9 @@
 module.exports = function (cache, confUrl) {
   return {
+    dlSuitStats(options) {
+      var url = `?sur_id=${options.surId}&filename=${options.fileName}&element_id=${options.eleId}`
+      window.open(confUrl.phpUrl + 'suitability/export_sur_stats' + url);
+    },
     dlAreaExcel: function(options) {
       var url = '?mask_type=' + options.mask_type + '&filename=' + options.fileName + 
                 '&index_grow=' + options.index_list[0] + '&index_drought=' + options.index_list[1] + 
@@ -115,6 +119,10 @@ module.exports = function (cache, confUrl) {
       return cache.get.apiInCache('distribute/info/batch?ids=' + ids);
     }
 
+    ,distributeIAById(id){
+      return cache.get.phpInCache(`classification/distribute_info_batch?id=${id}`)
+    }
+
     ,getLayerName: function (options) {
       return cache.get.apiInCache('atmos/' + options.areaCode + '/' + options.type + '/' + options.index + '/' + options.grade + '/' + options.date + '/' + options.date);
     }
@@ -130,6 +138,14 @@ module.exports = function (cache, confUrl) {
     ,weatherStations: function(showAll) {
       var show = showAll ? 0 :1;
       return cache.get.apiInCache('atmos/stations/' + show);
+    }
+
+    ,atmosOfPeriodOnPoint(objectId) {
+      return cache.get.apiInCache(`atmos/caiyun/history/${objectId}`)
+    }
+
+    ,atmosSummaryOfPoint(op) {
+      return cache.get.apiInCache(`atmos/grid-data/${op.startYear}/${op.startTenday}/${op.endYear}/${op.endTenday}/products/point/${op.lon}/${op.lat}/value`)
     }
 
     ,latestProduct: function(productType, code) {
@@ -175,6 +191,67 @@ module.exports = function (cache, confUrl) {
     ,pointAltitude(coordinate) {
       return cache.get.api(`geoinfo/dem/info/${coordinate[0]}/${coordinate[1]}`);
     }
+    ,landOwnerRelation(areaName) {
+      return cache.get.apiInCache(`land-ownership/query/${areaName}/people-and-area/relation/info`)
+    }
+    ,landOwnerCrop(areaName) {
+      return cache.get.apiInCache(`land-ownership/query/${areaName}/crop/list`)
+    }
+    ,healthyStatus(layerName) {
+      return cache.get.apiInCache(`high-precision-ndvi/query/${layerName}/ndvi-grade/info`)
+    }
+    ,yieldStatus(layerName) {
+      return cache.get.apiInCache(`high-precision-ndvi/query/${layerName}/yield-rate/info`)
+    }
+    ,areaGeojson(code) {
+      return cache.get.apiInCache(`geoinfo/query/${code}/bounds`)
+    },
+
+    weatherRealtime(center) {
+      return cache.get.api(`atmos/caiyun/realtime/${center[0]}/${center[1]}`)    
+    },
+    weatherForecast(center) {
+      return cache.get.api(`atmos/caiyun/forecast/${center[0]}/${center[1]}`)
+    },
+    weatherFifteenDays(center) {
+      return cache.get.api(`atmos/caiyun/forecast/${center[0]}/${center[1]}/15`)
+    },
+    weatherPosition(center, grade) {
+      return cache.get.api(`geoinfo/area-info/${center[0]}/${center[1]}/${grade}`)
+    },
+    plantSur() {
+      return cache.get.phpInCache('suitability/get_authorized_sur')
+    },
+    suitabilityById(surId) {
+      return cache.get.apiInCache(`suitability/query/${surId}/sur-info`)
+    },
+    surElementInfo() {
+      return cache.get.apiInCache('suitability/query/element-info')
+    },
+    modisMarkerInfo(options) {
+      return cache.get.apiInCache(`modis-product/grade/marker/${options.type}/${options.index}/${options.code}/${options.start}/${options.end}/${options.status}`)
+    },
+    modisMarkerExist(options) {
+      return cache.get.apiInCache(`modis-product/grade/marker/exist/${options.type}/${options.index}/${options.code}/${options.start}/${options.end}/${options.status}`)
+    },
+    soilPointStats() {
+      return cache.get.apiInCache('soil/monitor/region/element/info/stats')
+    },
+    soilElementConfig() {
+      return cache.get.apiInCache('soil/monitor/query/soil-element/config/info')
+    },
+    atmosConfig() {
+      return cache.get.apiInCache('atmos/grid-data/config')
+    },
+    atmosExist(year, name) {
+      return cache.get.apiInCache(`atmos/grid-data/${year}/${name}/exit/list`)
+    },
+    atmosLayername(options) {
+      return cache.get.apiInCache(`atmos/grid-data/${options.startYear}/${options.startTenday}/${options.endYear}/${options.endTenday}/products`)
+    },
+    atmosAtPoint(options) {
+      return cache.get.apiInCache(`atmos/grid-data/${options.startYear}/${options.startTenday}/${options.endYear}/${options.endTenday}/${options.name}/point/${options.lon}/${options.lat}/value`)
+    }
 
 
     // Post method
@@ -184,6 +261,9 @@ module.exports = function (cache, confUrl) {
 
     ,landGeom(data) {
       return cache.post.api('land-ownership/info/batch', data)
+    }
+    ,filterLands(data) {
+      return cache.post.api('high-precision-ndvi/query/certain/farmland/all/info', data)
     }
     ,lanTypeArea(data) {
       return cache.post.api('high-precision-ndvi/farmland/area/statistic/info', data)
@@ -245,35 +325,34 @@ module.exports = function (cache, confUrl) {
       return cache.get.tdt(url);
     }
 
+
+
+    ,latestModisLayer: function (data) {
+      return cache.post.api('modis-product/query/grade/recent/batch/info', data)
+    }
+
+    ,existModisLayer: function (data) {
+      return cache.post.api('modis-product/query/grade/exist/batch/info', data)
+    }
+
     ,nearEnterprises: function (data) {
       return cache.post.api('company/region/position/info/batch', JSON.stringify(data)) 
     }
 
+    ,soilPointElement(data) {
+      return cache.post.api('soil/monitor/query/soil-element/point/value', JSON.stringify(data))
+    }
     ,monitorPoints: function (data) {
       return cache.post.api('soil/monitor/region/element/info/batch', JSON.stringify(data)) 
     },
     geoImageList(data) {
       return cache.post.api('geoinfo/real-picture/info', JSON.stringify(data))
     },
-
-    weatherRealtime(center) {
-      return cache.get.api(`atmos/caiyun/realtime/${center[0]}/${center[1]}`)    
+    surAreaStats(data) {
+      return cache.post.api('suitability/query/sur-info/stats', data)
     },
-    weatherForecast(center) {
-      return cache.get.api(`atmos/caiyun/forecast/${center[0]}/${center[1]}`)
-    },
-    weatherPosition(center, grade) {
-      return cache.get.api(`geoinfo/area-info/${center[0]}/${center[1]}/${grade}`)
-    },
-    plantSur() {
-      return cache.get.phpInCache('suitability/get_authorized_sur')
-    },
-    suitabilityById(surId) {
-      return cache.get.apiInCache(`suitability/query/${surId}/sur-info`)
-    },
-    surElementInfo() {
-      return cache.get.apiInCache('suitability/query/element-info')
+    areaRelation(data) {
+      return cache.post.api('geoinfo/arealist/relation', data)
     }
-    
   }
 }

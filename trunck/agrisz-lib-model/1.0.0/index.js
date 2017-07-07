@@ -1,5 +1,393 @@
 module.exports = function (formatData, dateUtil, configData) {
   return {
+    formatMarkerExist(data, options) {
+      var result = {}
+      var startDate = new Date(options.start + "-01-01")
+      var endDate = new Date(options.end + "-12-31")
+      var params = {
+        startDate: startDate,
+        endDate: endDate,
+        data: data,
+        ENZ: true
+      };
+      result = formatData.apiDataToPeriod(params);
+
+      return result.Y
+    },
+    formatBreifAtmosHistory(data, options) {
+      var result = []
+      var startDate = dateUtil.periodToDate(options.startYear.toString()+ options.startTenday)
+      var endDate = dateUtil.periodToDate(options.endYear.toString()+ options.endTenday)
+      var params = {
+        startDate: startDate,
+        endDate: endDate,
+        data: data,
+        ENZ: true
+      };
+
+      var datas = formatData.apiDataToPeriod(params);
+      for (var i = 0; i < datas.X.length; i++) {
+        // TODO date string format
+        var item = {date: datas.X[i], atmos: null}
+        
+        if (datas.Y[i].PRE_Tenday_Sum && datas.Y[i].PRE_Tenday_Sum !== -9999) {
+          item.atmos = [
+              Number(datas.Y[i].PRE_Tenday_Sum).toFixed(2),
+              Number(datas.Y[i].PRE_Year_Tenday_Anomaly_10).toFixed(2),
+              Number(datas.Y[i].TMP_Year_Tenday_Max_10).toFixed(0),
+              Number(datas.Y[i].TMP_Year_Tenday_Mean_10).toFixed(0),
+              Number(datas.Y[i].TMP_Year_Tenday_Min_10).toFixed(0),
+              Number(datas.Y[i].TMP_Year_Tenday_Anomaly_10).toFixed(0),
+            ]
+        }
+
+        result.push(item)
+      }
+
+      return result
+    },
+    formatDLSkycon(data) {
+      var skycons = []
+      var date = new Date()
+      var currentPeriod = dateUtil.dayToPeriod(date.getDate())
+      
+      var dateArrary = getDateStringByPeriod(date, currentPeriod)
+
+      var history = data.history
+
+      appenHistorySkycon(history, dateArrary, skycons)
+
+      var forecastSkycon = data.forecast.daily.skycon
+
+      appendForcastSkycon(forecastSkycon, skycons)
+      
+      
+      return splitToPeriod(skycons)
+
+      function splitToPeriod(skycons) {
+        var periodSkycons = [];
+
+        var start = skycons[0].date
+        var end = start.substr(0, 4)+ "-12-31"
+
+        var startDate = new Date(start)
+        var endDate = new Date(end)
+
+        var skyconEnd = new Date(skycons[skycons.length-1].date)
+
+        var periodSkycon = []
+
+        while(startDate <= endDate) {
+          var day = startDate.getDate()
+          var date = dateUtil.formatDate(startDate)
+          var days = dateUtil.daysPerMonth(startDate)
+
+          var item = {}
+          if (skyconEnd >= startDate) {
+            for (var i = 0; i < skycons.length; i++) {
+              if (skycons[i].date === date) {
+                item = skycons[i]
+              }
+            }
+          } else {
+            // no data
+            item = {
+              date,
+              day,
+              icon: "icon-question1",
+              color: "#c9c9c9",
+              nodata: true
+            }
+          }
+
+          periodSkycon.push(item)
+          if (day == days || day == 10 || day == 20) {
+            periodSkycons.push(periodSkycon)
+            periodSkycon = []
+          }
+          startDate.setDate(startDate.getDate() + 1)
+        }
+        
+        return periodSkycons
+        
+      }
+
+      function getIndex(skycons) {
+        var index
+        for (var i = 0; i < skycons.length; i++) {
+          if (skycons[i].day == 1) {
+            index = i
+            break
+          }
+        }
+
+        return index
+      }
+
+      function appendForcastSkycon(forecastSkycon, skycons) {
+        for (var i = 0; i < forecastSkycon.length; i++) {
+          var skyconInfo = getSkyconInfo(forecastSkycon[i].value)
+          var date, dateStr
+          if (i===0) {
+            dateStr = "今天"
+          } else if(i===1) {
+            dateStr = "明天"
+          } else if(i===2) {
+            dateStr = "后天"
+          } else {
+            dateStr = forecastSkycon[i].date.substr(-2)
+          }
+          var item = {
+            date: forecastSkycon[i].date,
+            skycon: forecastSkycon[i].value,
+            icon: skyconInfo.icon,
+            color: skyconInfo.color,
+            day: dateStr
+          }
+          skycons.push(item)
+        }
+        return skycons
+      }
+
+      function getDateStringByPeriod(date, currentPeriod) {
+        var result = []
+        var dateStr = dateUtil.formatDate(date)
+        dateStr = dateStr.substr(0, 7)
+        if (currentPeriod == 1) {
+          for(var i = 1; i<= 10; i++) {
+            if (i > date.getDate()) {
+              break
+            }
+            result.push(dateStr + '-0'+i)
+          }
+
+        } else if (currentPeriod == 2) {
+          for(var i = 11; i<= 20; i++) {
+            if (i > date.getDate()) {
+              break
+            }
+            result.push(dateStr + '-'+i)
+          }
+        } else {
+          for(var i = 21; i<= 31; i++) {
+            if (i > date.getDate()) {
+              break
+            }
+            result.push(dateStr + '-'+i)
+          }
+        }
+
+        return result
+      } 
+
+      function appenHistorySkycon(history, dateArrary, skycons) {
+        for (var i = 0; i < dateArrary.length; i++) {
+          for(var key in history) {
+            var day = dateArrary[i].substr(-2)
+            if (key == dateArrary[i]) {
+              var _skycon = history[key].result.skycon
+              var skyconInfo = getSkyconInfo(_skycon)
+              var item = {
+                date: dateArrary[i],
+                skycon: _skycon,
+                icon: skyconInfo.icon,
+                color: skyconInfo.color,
+                day: day
+              }
+              break
+            } else {
+              var item = {
+                date: dateArrary[i],
+                skycon: '-',
+                icon: 'icon-question1',
+                color: "#c9c9c9",
+                day: day,
+                nodata: true
+              }
+            }
+          }
+          skycons.push(item)
+        }
+      }
+
+      function getSkyconInfo(key) {
+        var skycon = [ "CLEAR_DAY", "CLEAR_NIGHT", "PARTLY_CLOUDY_DAY",
+            "PARTLY_CLOUDY_NIGHT", "CLOUDY", "RAIN", "SNOW", "WIND", "FOG"]
+
+        var skyconZhs  =["晴", "晴", "多云", "多云", "阴", "雨", "雪", "风", "雾"]
+        var skyconIcons = [ "icon-tianqitubiao_qing", "icon-qingye", "icon-tianqitubiao_duoyun", 
+                 "icon-wanshangtubiao_wanshangduoyun", "icon-tianqitubiao_yin", 
+                 "icon-tianqitubiao_zhongyu", "icon-tianqitubiao_zhongxue", 
+                 "icon-fengxiang", "icon-tianqitubiao_wu",
+               ]
+        var skyconColors = ["#E0AB05", "#E0AB05", "#6565A8", "#6565A8", "#6565A8", "#1291F9", "#3BADE0", "#333", "#516865"]
+        var index = skycon.indexOf(key)
+        var icon = skyconIcons[index]
+        var color = skyconColors[index]
+
+        return {icon, color}
+      }
+    },
+    formatRelation(data, codes) {
+      var result = {}
+      for (var i = 0; i < codes.length; i++) {
+        result[codes[i]] = [codes[i]]
+
+        for (var j = 0; j < data.length; j++) {
+          if (codes[i] === data[j].area_id && data[j].contain && data[j].contain.length > 0) {
+            result[codes[i]] = result[codes[i]].concat(getChildCodes(data[j].contain, codes[i]))
+          }
+        }
+        
+      }
+
+      return result
+        
+      function getChildCodes(data, code) {
+        var childCodes = []
+        for (var i = 0; i < data.length; i++) {
+          childCodes.push(data[i].area_id)
+
+          if (data[i].contain) {
+            childCodes = childCodes.concat(getChildCodes(data[i].contain, code))
+          }
+        }
+
+        return childCodes
+      }
+    },
+    formatSurtStatsByTree(stats, tree) {
+      var result = {}
+      result.tableData = []
+      result.parentIndexs = []
+      for (var i = 0; i < tree.length; i++) {
+        var curObject = stats[tree[i].area_id]
+
+        var muha = getMuAndHa(curObject.total)
+
+        if (curObject) {
+          var item = { 
+            id: tree[i].area_id,
+            name: curObject.name, 
+            totalArea: curObject.total, 
+            isParent: curObject.isParent,
+            mu: muha.mu,
+            ha: muha.ha
+          }
+
+          appendSuitArea(item, curObject.bar)
+
+          var _index = result.tableData.push(item)
+          result.parentIndexs.push(_index - 1)
+        }
+          
+
+
+        if (tree[i].contain && tree[i].contain.length > 0) {
+          var childTb = this.formatSurtStatsByTree(stats, tree[i].contain).tableData
+          result.tableData = result.tableData.concat(childTb)
+        }
+      }
+
+      return result
+
+      function appendSuitArea(item, bar) {
+        var muha = getMuAndHa(bar[0].value)
+        var muha1 = getMuAndHa(bar[1].value)
+        var muha2 = getMuAndHa(bar[2].value)
+        item.suit = {
+          area: bar[0].value,
+          percent: bar[0].percent,
+          mu: muha.mu,
+          ha: muha.ha
+        };
+        item.geSuit = {
+          area: bar[1].value,
+          percent: bar[1].percent,
+          mu: muha1.mu,
+          ha: muha1.ha
+        };
+        item.unSuit = {
+          area: bar[2].value,
+          percent: bar[2].percent,
+          mu: muha2.mu,
+          ha: muha2.ha
+        };
+      }
+
+      function getMuAndHa(area) {
+        var mu = (area / 10000).toFixed(2)
+        var ha = (area / 15 / 1000).toFixed(2)
+
+        mu = Number(mu)
+        ha = Number(ha)
+
+        return {mu, ha}
+      }
+    },
+    formatAreaStats(data) {
+      var result = {}
+      result = {}
+
+      for (var i = 0; i < data.length; i++) {
+        var eleKey = data[i].element_id
+        var parentCodes = data[i].area_codes
+
+        result[eleKey] = {}
+        result[eleKey].parentCodes = parentCodes
+
+        addKeyCode(data[i].stats, result[eleKey], parentCodes)
+      }
+
+      function addKeyCode(stats, elementData, parentCodes) {
+        for (var j = 0; j < stats.length; j++) {
+          var codeKey = stats[j].area_code
+          elementData[codeKey] = {}
+
+          var isParent = parentCodes.includes(codeKey)
+          var name = stats[j].area_name
+          var statsInfo = getStatsInfo(stats[j].stats_info)
+
+          elementData[codeKey] = {name, isParent, bar: statsInfo.bar, total:statsInfo.total}
+
+        }
+      }
+
+      function getStatsInfo(stats) {
+        var statsInfo = {}
+        var sutable = configData.plant.sutable
+
+        statsInfo.bar = []
+        statsInfo.total = 0
+        
+        for(var suitKey in stats) {
+
+          for (var i = 0; i < sutable.length; i++) {  // 顺序为 适宜 － 不适宜
+            if (sutable[i].value == suitKey) {
+              var area = parseInt(stats[suitKey].area * 15 / 10000)
+
+              var displayArea = area >= 10000 ? ((area / 10000).toFixed(2) + '万亩') : (area+ '亩')
+              
+              var suitItem = {
+                value: area,
+                name:  `${sutable[i].name}\n${displayArea}`,
+                color: sutable[i].color,
+                displayName: sutable[i].name,
+                percent: Number(stats[suitKey].percent).toFixed(0),
+                background: sutable[i].background
+              }
+
+              statsInfo.bar[i] = suitItem;
+              statsInfo.total += area
+            }
+          }
+        }
+
+        return statsInfo
+      }
+
+      return result
+    },
     formatAreas: function (data) {
       if (data.status == '0') {
         var _count = 0
@@ -288,6 +676,7 @@ module.exports = function (formatData, dateUtil, configData) {
       result.cropName = data.object_name
       result.cropId = data.object_id
       result.code = data.area_codes
+      result.grade = data.grade
 
       for (var i = 0; i < data.sr_list.length; i++) {
         var eleItem = {
@@ -299,6 +688,14 @@ module.exports = function (formatData, dateUtil, configData) {
         result.srList.push(eleItem)
       }
 
+      return result
+    },
+    transformExtent(extent) {
+      var result = []
+      result[0] = extent[0]
+      result[1] = extent[3]
+      result[2] = extent[2]
+      result[3] = extent[1]
       return result
     },
     formatSurEleInfo(data) {
@@ -335,10 +732,12 @@ module.exports = function (formatData, dateUtil, configData) {
     },
     formatNdviInfo(data) {
       var result = []
-      for (var i = data.length - 1; i >= 0; i--) {
+      for (var i = 0; i < data.length; i++) {
         result[i] = {}
         result[i].date = data[i].date
-        result[i].layerName = data[i].ndvi_layer_name
+        result[i].ndviLayer = data[i].ndvi_layer_name
+        result[i].gradeLayer = data[i].ndvi_grade_layer_name
+        result[i].yieldLayer = data[i].yield_rate_layer_name
       }
       return result
     },
@@ -370,8 +769,14 @@ module.exports = function (formatData, dateUtil, configData) {
       var line = {}
       line.xAxis = []
       line.yAxis = []
-      line.data = [],
+      line.data = []
       line.diffYear = []
+
+      line.currentYear = []
+
+      line.lastYear =  []
+
+      var curYearStr = new Date().getFullYear()
 
       for (var i = 0; i < data.length; i++) {
         var _yAxis = data[i].ndvi_value.toFixed(2)
@@ -379,6 +784,19 @@ module.exports = function (formatData, dateUtil, configData) {
         var _data  ={
           name: new Date(data[i].date),
           value: [data[i].date.split(' ')[0], _yAxis]
+        }
+
+        if (data[i].date.indexOf(curYearStr) >= 0) {
+          line.currentYear.push(_data)
+        }
+
+        if (data[i].date.indexOf(curYearStr - 1) >= 0) {
+          var __date = data[i].date.replace(curYearStr - 1, curYearStr)
+          var __data  ={
+            name: new Date(__date),
+            value: [__date.split(' ')[0], _yAxis]
+          }
+          line.lastYear.push(__data)
         }
 
         line.xAxis[i] = data[i].date.split(' ')[0]
@@ -427,6 +845,49 @@ module.exports = function (formatData, dateUtil, configData) {
         }
       }
       return { carousel:carousel, report:report, reportTitle:reportTitle };
+    },
+    formatMonitorTree(data, subFilter) {
+      
+      const loopData = (list)=> {
+        var treeData = []
+        var item = {}
+        var minGrade = 0
+        var codes = []
+
+        for (var i = 0; i < list.length; i++) {
+          item = {
+            area_id: list[i].area_id,
+            area_name: list[i].area_name,
+            bounds: list[i].bounds,
+            grade: list[i].grade,
+            parent_id: list[i].parent_id,
+            codes: [list[i].area_id]
+          }
+
+          minGrade = list[i].grade
+
+          codes.push(list[i].area_id)
+
+          if (list[i].contain && list[i].contain.length > 0) {
+            var childItem = loopData(list[i].contain)
+            item.contain = childItem.treeData
+
+            minGrade = minGrade < childItem.minGrade ? childItem.minGrade : minGrade
+
+            item.codes = item.codes.concat(childItem.codes)
+            codes = codes.concat(childItem.codes)
+
+            if (childItem.codes.length > 0) {
+              item[(list[i].grade + 1)] = childItem.codes
+            }
+          }
+
+          item.minGrade = minGrade
+          treeData.push(item)
+        }
+        return {treeData, minGrade, codes}
+      }
+      return loopData(data)
     },
     formatMonitorList: function (data) {
       for (var i = 0; i < data.length; i++) {
@@ -688,14 +1149,18 @@ module.exports = function (formatData, dateUtil, configData) {
       }
       return data;
     },
-    formatCpData: function (data, id, code) {
-      code = data.data[id].area_code ? data.data[id].area_code : code;
-      var cp = areaCpData(data.data[id].scps, code);
+    formatCpData: function (data, code) {
+      code = code ? code : data.area_code
+      var cp = areaCpData(data.scps, code);
       if (!cp) {
-        console.log('Do not have id is '+ id +' layer data.');
-        return null; 
+        cp = areaCpData(data.scps, data.area_code);
+        
+        if (!cp) {
+          console.log('Do not have code is '+ code +' distribute layer data.');
+          return null; 
+        }
       } 
-      return { cp:cp,  areaList: data.data[id].area_list}; 
+      return { cp:cp,  areaList: data.area_list}; 
 
       function areaCpData(data, code) {
         for (var i = 0; i < data.length; i++) { 
@@ -747,7 +1212,7 @@ module.exports = function (formatData, dateUtil, configData) {
         return data;
       } else {
         console.log('There is something wrong with report type data.');
-        return null;
+        return [];
       }
     },
     formatReportList: function (data) {
@@ -1260,6 +1725,9 @@ module.exports = function (formatData, dateUtil, configData) {
       
       if (poiObject.status == 0) {
         point = poiObject.result;
+        if (point.addressComponent.address == "" && point.addressComponent.poi == "") {
+          point.addressComponent.address = point.addressComponent.city
+        }
       } else {
         point = null;
       }

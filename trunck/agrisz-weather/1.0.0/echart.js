@@ -126,12 +126,13 @@ module.exports = {
       cur = ''
     for (var i = 0; i < skycon.length; i++) {
       cur = skycon[i].value
-      if (cur === pre) {
-        icons.push('')
-      } else {
-        pre = cur
-        icons.push(cur)
-      }
+      // if (cur === pre) {
+      //   icons.push('')
+      // } else {
+      //   pre = cur
+      //   icons.push(cur)
+      // }
+      icons.push(cur)
     }
 
     return icons
@@ -146,6 +147,20 @@ module.exports = {
 
     } else {
       content = direc + "风" + speedLevel + '级'
+    }
+
+    return content
+  },
+  getBoldWindContent(direction, speed) {
+    var direc = this.getWindDirection(direction),
+      speedLevel = this.getWindlevel(speed),
+      content
+
+    if (speedLevel === 0) {
+      content = "无风"
+
+    } else {
+      content = direc + "风 <b>" + speedLevel + '</b>级'
     }
 
     return content

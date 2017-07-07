@@ -3,29 +3,38 @@ module.exports = function() {
     name: 'my-echart',
     prop: {
       props: ['options'],
-      template: '<div></div>',
+      template: '<div class="echart-common-settings"></div>',
       mounted: function () {
-        var vm = this
-        
-        if (vm.options) {
-          let myCharts = echarts.init(vm.$el)
-          myCharts.setOption(vm.options);
+        if (this.options) {
+          this.myCharts = echarts.init(this.$el)
+          this.myCharts.setOption(this.options);
+
+          this.initEvents()
         }
       },
       watch: {
         options: function (options) {
-          var vm = this
-          if (vm.options) {
-            let myCharts = echarts.init(vm.$el)
-            myCharts.setOption(vm.options);
+          if (this.options) {
+            this.myCharts = echarts.init(this.$el)
+            this.myCharts.setOption(this.options);
+
+            this.initEvents()
           }
         }
       },
       destroyed: function () {
-        console.log('destroy')
+        if (this.myCharts && this.myCharts.off) {
+          this.myCharts.off('datazoom', this.datazoom);
+          console.log('destroy')
+        }
       },
       methods: {
-         
+        initEvents() {
+          this.myCharts.on('datazoom', this.datazoom);
+        },
+        datazoom(params) {
+          this.$emit("datazoom", params)
+        }
       }
     }
   }

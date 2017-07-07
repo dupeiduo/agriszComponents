@@ -1,0 +1,11 @@
+{
+  "name": "agrisz-map-polygon",
+  "version": "1.0.0",
+  "description": "the map polygon of program",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "dupeiduo",
+  "license": "ISC"
+}

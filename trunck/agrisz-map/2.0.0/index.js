@@ -1,33 +1,11 @@
 import meassureHandler from './meassure.js'
-module.exports = function (config, configData, request, vueBus) {
+module.exports = function (config, configData, request, vueBus, store) {
   return {
     name: 'my-map',
     prop: {
       data(){
         return {
           showVec: false,
-          styles: {
-            selected: function selected() {
-            var normalColor = configData.sld.normal.color
-            var sld = "<PolygonSymbolizer>\n          <Fill>\n            <CssParameter name=\"fill\">#000000</CssParameter>\n            <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">#0695ed</CssParameter>\n              <CssParameter name=\"stroke-width\">3.6</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PolygonSymbolizer>\n          <Fill>\n              <CssParameter name=\"fill\">#000000</CssParameter>\n              <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">#ffffff</CssParameter>\n              <CssParameter name=\"stroke-width\">0.2</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PerpendicularOffset>-30</PerpendicularOffset>";
-              return sld
-            },
-            normal: function normal() {
-              var normalColor = configData.sld.normal.color
-              var sld = "<PolygonSymbolizer>\n          <Fill>\n            <CssParameter name=\"fill\">#000000</CssParameter>\n            <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">"+ normalColor +"</CssParameter>\n              <CssParameter name=\"stroke-width\">1</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PolygonSymbolizer>\n          <Fill>\n              <CssParameter name=\"fill\">#000000</CssParameter>\n              <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">#ffffff</CssParameter>\n              <CssParameter name=\"stroke-width\">0.2</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PerpendicularOffset>-30</PerpendicularOffset>";
-              return sld
-            },
-            bold: function bold() {
-              var boldColor = configData.sld.bold.color
-              var sld = "<PolygonSymbolizer>\n          <Fill>\n            <CssParameter name=\"fill\">#000000</CssParameter>\n            <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">"+ boldColor +"</CssParameter>\n              <CssParameter name=\"stroke-width\">1.6</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PolygonSymbolizer>\n          <Fill>\n              <CssParameter name=\"fill\">#000000</CssParameter>\n              <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">#ffffff</CssParameter>\n              <CssParameter name=\"stroke-width\">0.2</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PerpendicularOffset>-30</PerpendicularOffset>";
-              return sld
-            },
-            highlighted: function highlighted() {
-              var highlightedColor = configData.sld.highlighted.color
-              var sld = "<PolygonSymbolizer>\n          <Fill>\n            <CssParameter name=\"fill\">#000000</CssParameter>\n            <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">"+ highlightedColor +"</CssParameter>\n              <CssParameter name=\"stroke-width\">1.6</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PolygonSymbolizer>\n          <Fill>\n              <CssParameter name=\"fill\">#000000</CssParameter>\n              <CssParameter name=\"fill-opacity\">0</CssParameter>\n          </Fill>\n          <Stroke>\n              <CssParameter name=\"stroke\">#ffffff</CssParameter>\n              <CssParameter name=\"stroke-width\">0.2</CssParameter>\n          </Stroke>\n      </PolygonSymbolizer>\n      <PerpendicularOffset>-30</PerpendicularOffset>";
-              return sld
-            }
-          },
           lonlatPositon: [0, 0],
           lonlatStr: '',
           altitudeLayer: [],
@@ -47,10 +25,11 @@ module.exports = function (config, configData, request, vueBus) {
           weatherInfo: null,
           showWeaDetail: false,
           centerInfo: null,
+          TILE_LAYER_NAME: "map:sz_gov_shape_data",
         }
       },
       template: `<div @click="hidePop">
-                  <div class="map-ctl">
+                  <div class="map-ctl map-zIndex">
                     <el-tooltip class="item" effect="dark"  popper-class="tooltip-opacity" :content="showVec ? '卫星' : '地图'" placement="left">
                       <span class="layer-ctl box-common-shadow border-common-radius"
                         v-if="switchCtl"
@@ -74,7 +53,7 @@ module.exports = function (config, configData, request, vueBus) {
                       </span>
                     </el-tooltip>
 
-                    <div class="zoom-ctl box-common-shadow border-common-radius">
+                    <div v-if="useZoomCtl" class="zoom-ctl box-common-shadow border-common-radius">
                       <el-tooltip class="item" effect="dark"  popper-class="tooltip-opacity" content="放大" placement="left">
                         <span class="zoom-in no-select" @click="zoomCtl(true)">+</span>
                       </el-tooltip>
@@ -84,7 +63,8 @@ module.exports = function (config, configData, request, vueBus) {
                     </div>
 
                   </div>
-                  <div v-if="useTools" class="map-tools box-common-shadow">
+
+                  <div v-if="useTools" class="map-tools box-common-shadow map-zIndex">
                     <p class="no-select border-common-radius" @click="toggleToolPanel"><i class="iconfont icon-tool"></i>工具<span :class="showTool ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></span></p>
                     <ul v-show="showTool" class="border-common-radius">
                       <li v-for="(item, index) in toolData" 
@@ -92,29 +72,35 @@ module.exports = function (config, configData, request, vueBus) {
                       ><i :class="'iconfont ' + item.icon"></i>{{item.name}}</li>
                     </ul>
                   </div>
-                  <div v-if="seeLonlat" class="lonlat box-common-shadow border-common-radius"
+
+                  <div v-if="seeLonlat" class="lonlat box-common-shadow border-common-radius map-zIndex"
                     :style="{top: lonlatPositon[1] + 'px', left: lonlatPositon[0] + 'px'}">
                     <p class="lonlat-str" v-html="lonlatStr"></p>
                     <p class="lonlat-tip">移动鼠标查看经纬度，<span class="map-highlight-tip">双击</span>结束</p>
                     <div class="tip-arrow-bottom"></div>
                   </div>
-                  <div v-if="seeAltitude" class="altitude border-common-radius"
+
+                  <div v-if="seeAltitude" class="altitude border-common-radius map-zIndex"
                     :style="{top: altitudePositon[1] + 'px', left: altitudePositon[0] + 'px'}">
                     <p><span class="map-highlight-tip">单击</span>查看海拔高度，<span class="map-highlight-tip">双击</span>结束</p>
                   </div>
-                  
-                      <agrisz-weather 
-                        v-show="useWeather"
-                        :top="56" 
-                        :right="385"
-                        :showDetail="showWeaDetail"
-                        :centerInfo="centerInfo"
-                        @click.native="stopPop"
-                        @toggleWeaDetail="toggleWeaDetail"
-                        :weatherInfo="weatherInfo"></agrisz-weather>
-                    
+
+                  <agrisz-weather 
+                    v-if="useWeather"
+                    :top="56" 
+                    :right="137"
+                    :showDetail="showWeaDetail"
+                    :centerInfo="centerInfo"
+                    @click.native="stopPop"
+                    @toggleWeaDetail="toggleWeaDetail"
+                    :weatherInfo="weatherInfo">
+                  </agrisz-weather>
                 </div>`,
       props: {
+        useZoomCtl: {
+          type: Boolean,
+          default: true
+        }, 
         centerCtl: {
           type: Object,
           default: null
@@ -122,10 +108,6 @@ module.exports = function (config, configData, request, vueBus) {
         switchCtl: {
           type: Boolean,
           default: false
-        }, 
-        addAreas: {
-          type: Object,
-          default: null
         }, 
         addTileAreas: {
           type: Object,
@@ -158,7 +140,15 @@ module.exports = function (config, configData, request, vueBus) {
         useWeather: {
           type: Boolean,
           default: true
-        }
+        },
+        // tools: {
+        //   type: Array,
+        //   default: ["zoom", "switch", "measure", "weather"]
+        // },
+        // defaultBounds: {
+        //   type: Array,
+        //   default: [59.16923446634909, 3.78384672174441, 120.85765914869889, 53.6085216306968]
+        // }
       },
       mounted: function () {
         this.init()
@@ -173,30 +163,28 @@ module.exports = function (config, configData, request, vueBus) {
       },
       methods: {
         init() {
-          var vm = this;
-          vm.areaLayers = []
-          vm.tileAreaLayers = []
-          vm.tdtVecLayer = new ol.layer.Tile({
+          this.areaLayers = []
+          this.tileAreaLayers = []
+          
+          this.tdtVecLayer = new ol.layer.Tile({
             title: "矢量数据",
-            visible: vm.showVec,
+            visible: this.showVec,
             source: new ol.source.XYZ({
               urls: defineUrl("vec")
             })
           });
 
-          // vm.tdtImgLayer = new ol.layer.Tile({
-          //   title: "影像数据",
-          //   visible: !vm.showVec,
-          //   source: new ol.source.XYZ({
-          //     urls: defineUrl("img")
-          //   })
-          // });
+          this.tdtImgLayer = new ol.layer.Tile({
+            title: "影像数据",
+            visible: !this.showVec,
+            source: new ol.source.XYZ({
+              urls: defineUrl("img")
+            })
+          });
           
-          vm.TDTAnnotationRoadLayer = vm.getTDTAnnotationRoadLayer()
-          
-          vm.tdtImgLayer = new ol.layer.Tile({
+          this.googleImgLayer = new ol.layer.Tile({
             title: "谷歌影像未加密地图",
-            visible: !vm.showVec,
+            visible: !this.showVec,
             source: new ol.source.XYZ({url: 'http://www.google.cn/maps/vt?lyrs=s@189&x={x}&y={y}&z={z}'}),
             zIndex: -100
           });
@@ -219,9 +207,9 @@ module.exports = function (config, configData, request, vueBus) {
           }
 
           var map = new ol.Map({
-            target: vm.$el,
+            target: this.$el,
             interactions : ol.interaction.defaults({doubleClickZoom :false}),
-            layers: [vm.tdtVecLayer, vm.tdtImgLayer, tdtCvaLayer],
+            layers: [this.tdtVecLayer, this.googleImgLayer, tdtCvaLayer],
             controls: ol.control.defaults().extend([
               new ol.control.ScaleLine({
                 target: document.getElementById('scaleline')
@@ -235,7 +223,7 @@ module.exports = function (config, configData, request, vueBus) {
             })
           });
           tdtCvaLayer.setZIndex(5);
-          vm.map = map;
+          this.map = map;
 
           this.doubleClickZoom(true);
           this.$emit('initMap', map)
@@ -247,7 +235,7 @@ module.exports = function (config, configData, request, vueBus) {
         hidePop() {
           this.showWeaDetail = false
         },
-        stopPop() {
+        stopPop(event) {
           event.stopPropagation()
         },
         mapViewChange() {
@@ -267,32 +255,7 @@ module.exports = function (config, configData, request, vueBus) {
             this.map.removeInteraction(this.dbclkInteraction)
           } 
         },
-        getTDTAnnotationRoadLayer() {
-          var resolutions = [];
-          var matrixIds = [];
-          var proj3857 = ol.proj.get('EPSG:3857');
-          var maxResolution = ol.extent.getWidth(proj3857.getExtent()) / 256;
-          for (var i = 0; i < 18; i++) {
-            matrixIds[i] = i.toString();
-            resolutions[i] = maxResolution / Math.pow(2, i);
-          }
-          var tianditu_annotation_road_layer = new ol.layer.Tile({
-            source: new ol.source.WMTS({
-              url: "http://t{0-6}.tianditu.com/cia_w/wmts",
-              layer: 'cia',
-              matrixSet: 'w',
-              format: 'tiles',
-              tileGrid: new ol.tilegrid.WMTS({
-                origin: ol.extent.getTopLeft(proj3857.getExtent()),
-                resolutions: resolutions,
-                matrixIds: matrixIds
-              })
-            }),
-            zIndex: 100
-          });
-          return tianditu_annotation_road_layer;
-        },
-        setCenter () {
+        setCenter() {
           if (this.centerCtl.bounds) {
             var extent = ol.extent.applyTransform(this.centerCtl.bounds, ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
             this.map.getView().fit(extent, this.map.getSize());
@@ -300,6 +263,17 @@ module.exports = function (config, configData, request, vueBus) {
             this.$emit('setCenter')
           }
           this.mapViewChange()
+        },
+        getOffsetBounds(bounds, size, offset=260) {
+          var offsetBounds = []
+          var scale = (bounds[2] - bounds[0]) / size[0]
+
+          offsetBounds[0] = bounds[0] - offset*scale
+          offsetBounds[2] = bounds[2] - offset*scale
+          offsetBounds[1] = bounds[1]
+          offsetBounds[3] = bounds[3]
+          
+          return offsetBounds
         },
         zoomCtl(zoomIn) {
           var view = this.map.getView()
@@ -312,38 +286,46 @@ module.exports = function (config, configData, request, vueBus) {
           }
           view.setZoom(zoom)
           this.mapViewChange()
+          console.log(zoom)
         },
         bindLonLatEvt() {
           this.map.on('pointermove', this.getLonLat);
-          this.map.on('dblclick', this.clearTools);
+          this.map.on('dblclick', this.dblcLonlat);
           this.map.getViewport().style.cursor = 'pointer';
         },
         getLonLat(event) {
           if (event.draging) {
             return
+
           } else {
             var pixel =  this.map.getEventPixel(event.originalEvent);
             var coordinate = this.map.getCoordinateFromPixel(pixel)
-            var lonlat = ol.coordinate.toStringHDMS(ol.proj.transform(
-              coordinate, 'EPSG:3857', 'EPSG:4326'));
-            if (lonlat.indexOf('N') > 0) {
-              var lon = '北纬' + lonlat.split('N')[0]
-              if (lonlat.indexOf('E') > 0) {
-                var lat = '东经' + lonlat.split('N')[1].split('E')[0]
-              } else {
-                var lat = '西经' + lonlat.split('N')[1].split('W')[0]
-              }
-            } else if (lonlat.indexOf('S') > 0) {
-              var lon =  '南纬' + lonlat.split('S')[0]
-              if (lonlat.indexOf('E') > 0) {
-                var lat = '东经' + lonlat.split('S')[1].split('E')[0]
-              } else {
-                var lat = '西经' + lonlat.split('S')[1].split('W')[0]
-              }
-            }
-            var lonlatStr = lat + '&nbsp;&nbsp;' + lon
+            
+            var lonlatStr = this.getLonLatByCoordinate(coordinate)
             this.renderLonLat(lonlatStr, pixel)
           }
+        },
+        getLonLatByCoordinate(coordinate) {
+          var lonlat = ol.coordinate.toStringHDMS(ol.proj.transform(coordinate, 'EPSG:3857', 'EPSG:4326'));
+          
+          if (lonlat.indexOf('N') > 0) {
+            var lon = '北纬' + lonlat.split('N')[0]
+            if (lonlat.indexOf('E') > 0) {
+              var lat = '东经' + lonlat.split('N')[1].split('E')[0]
+            } else {
+              var lat = '西经' + lonlat.split('N')[1].split('W')[0]
+            }
+          } else if (lonlat.indexOf('S') > 0) {
+            var lon =  '南纬' + lonlat.split('S')[0]
+            if (lonlat.indexOf('E') > 0) {
+              var lat = '东经' + lonlat.split('S')[1].split('E')[0]
+            } else {
+              var lat = '西经' + lonlat.split('S')[1].split('W')[0]
+            }
+          }
+          var lonlatStr = lat + '&nbsp;&nbsp;' + lon
+
+          return lonlatStr
         },
         renderLonLat(lonlatStr, position) {
           this.lonlatPositon = [position[0] - 114, position[1] - 70]
@@ -352,7 +334,13 @@ module.exports = function (config, configData, request, vueBus) {
         removeLonlat() {
           this.seeLonlat = false
           this.map.un('pointermove', this.getLonLat);
-          this.map.un('dblclick', this.clearTools);
+          this.map.un('dblclick', this.dblcLonlat);
+        },
+        dblcLonlat() {
+          this.clearTools()
+          setTimeout(()=> {
+            this.doubleClickZoom(true)
+          }, 1000)
         },
         bindAltitudeEvt() {
           this.map.on('click', this.addAltitude);
@@ -368,14 +356,14 @@ module.exports = function (config, configData, request, vueBus) {
         addAltitude(event) {
           if (this.timeHandler) {
             clearTimeout(this.timeHandler)
-            this.clearTools()
+            this.dblcLonlat()
             this.timeHandler = null
           } else {
             this.timeHandler = setTimeout(() => {
               var pixel =  this.map.getEventPixel(event.originalEvent),
               coordinate = this.map.getCoordinateFromPixel(pixel),
               lonlat = ol.proj.transform(coordinate, 'EPSG:3857', 'EPSG:4326'),
-              _overlay = this.addPointTip(coordinate)
+              _overlay = this.addAltitudeTip(coordinate)
 
               request.pointAltitude(lonlat).then((response)=> {
                 if (response.status === 200 && response.data.status === 0) {
@@ -408,7 +396,7 @@ module.exports = function (config, configData, request, vueBus) {
           this.map.un('click', this.addAltitude);
           this.map.un('pointermove', this.showAltitudeTip);
         },
-        addPointTip(coordinate) {
+        addAltitudeTip(coordinate) {
           this.altitudeLayer = this.altitudeLayer ? this.altitudeLayer : [];
 
           var feature = new ol.Feature({
@@ -437,9 +425,9 @@ module.exports = function (config, configData, request, vueBus) {
           _altitudeLayer.setZIndex(10)
           this.altitudeLayer.push(_altitudeLayer);
 
-          return this.addOverlay(coordinate)
+          return this.addAltitudeOverlay(coordinate)
         },
-        addOverlay(coordinate) {
+        addAltitudeOverlay(coordinate) {
           let popup = document.createElement('div')
 
           let content = document.createElement('p')
@@ -457,7 +445,7 @@ module.exports = function (config, configData, request, vueBus) {
 
           let height = document.body.clientHeight + 65
           popup.style.left = `-48px`
-          popup.style.top = `-${height}px`
+          popup.style.top = `-65px`
 
           let pop = new ol.Overlay({
             element: popup,
@@ -472,211 +460,33 @@ module.exports = function (config, configData, request, vueBus) {
           var _size = map.getSize(),
               _extent = map.getView().calculateExtent(_size);
 
-          var tiled = new ol.layer.Tile({
-            visible: options.visible,
-            extent: options.extent ? options.extent : _extent,
-            opacity: options.opacity ? options.opacity : 1,
-            source: new ol.source.TileWMS({
-              url: options.serverUrl ? options.serverUrl : config.mapUrl,
-              params: {
-                FORMAT: "image/png",
-                'VERSION': '1.1.1',
-                tiled: true,
-                STYLES: options.styles ? options.styles : '',
-                LAYERS: options.layerName,
-              }
-            })
-          });
+          if (!options.serverUrl) {
+            console.error("Please set 'serverUrl'")
+            return null
+          }
 
+          options.extent = options.extent ? options.extent : _extent
+          var tiled = this.getTileLayer(options)
           map.addLayer(tiled);
 
-          if (options.sld) {
-            if(tiled.getSource().getParams().SLD_BODY){
-              delete tiled.getSource().getParams().SLD_BODY;
-            }
-            tiled.getSource().updateParams({SLD_BODY: options.sld});
-          }
-
-          if (options.zIndex && typeof options.zIndex ==='number') {
-            tiled.setZIndex(options.zIndex);
-          }
           return tiled
         },
-        addAreaLayers(code, areas, map) {
-          var _this = this,
-            areaLayers = []
-          return getAreaLayers(code, areas, map)
-          function getAreaLayers(code, areas, map) {
-            var layersName;
-            for (let i = 0; i < areas.length; i++) {
-              if (code) {
-                if(areas[i].area_id == code) {
-                  layersName = 'map:area_' + areas[i].area_id;
-                  addSingleLayer(areas[i].bounds, layersName, "outer", map);
-                  if (areas[i].contain) {
-                    for (let j = 0; j < areas[i].contain.length; j++) {
-                      layersName = 'map:area_' + areas[i].contain[j].area_id
-                      addSingleLayer(areas[i].contain[j].bounds, layersName, 'inner', map);
-                    }
-                  }
-                  return areaLayers;
-                } 
-                if(areas[i].area_id != code && areas[i].contain) {
-                  getAreaLayers(code, areas[i].contain, map);
-                }
-              } else {
-                layersName = 'map:area_' + areas[i].area_id;
-                addSingleLayer(areas[i].bounds, layersName, "outer", map)
-              }
-            }
-
-            return areaLayers
-          }
-
-          function addSingleLayer(bounds, layerName, lineType, map) {
-            let layer, extent, layerOptions;
-            
-            extent = ol.extent.applyTransform(
-              [bounds.lb_lon, bounds.lb_lat, bounds.rt_lon, bounds.rt_lat], 
-              ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
-
-            layerOptions = {
-              visible: true,
-              extent: extent,
-              layerName: layerName,
-              sld: getAreaSld(lineType)
-            }
-            layer = _this.addGeoLayer(layerOptions, map);
-            layer.setZIndex(8);
-            areaLayers.push(layer);
-          }
-
-          function getAreaSld (type) {
-            var sld = '<StyledLayerDescriptor version="1.0.0" '+
-                     'xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" '+
-                     'xmlns="http://www.opengis.net/sld" '+
-                     'xmlns:ogc="http://www.opengis.net/ogc" '+
-                     'xmlns:xlink="http://www.w3.org/1999/xlink" '+
-                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
-                      '<NamedLayer>'+
-                        '<Name>default_polygon</Name>'+
-                        '<UserStyle>'+
-                          '<Title>Default Polygon</Title>'+
-                          '<Abstract>A sample style that draws a polygon</Abstract>'+
-                          '<FeatureTypeStyle>'+
-                            '<Rule>'+
-                              '<Name>rule1</Name>'+
-                              '<Title>Gray Polygon with Black Outline</Title>'+
-                              '<Abstract>A polygon with a gray fill and a 1 pixel black outline</Abstract>';
-
-            sld += '<PolygonSymbolizer>'+
-                      '<Fill>'+
-                        '<CssParameter name="fill">'+ configData.sld[type].fill +'</CssParameter>'+
-                         '<CssParameter name="fill-opacity">'+ configData.sld[type].fillOpacity +'</CssParameter>'+
-                      '</Fill>'+
-                      '<Stroke>'+
-                        '<CssParameter name="stroke">'+ configData.sld[type].stroke +'</CssParameter>'+
-                        '<CssParameter name="stroke-width">10</CssParameter>';
-            if (type == 'inner') {
-              sld += '</Stroke>'+
-                '</PolygonSymbolizer>';
-            }   
-            else if (type == "outer") {
-              sld += '<CssParameter name="stroke-linecap">'+ configData.sld[type].strokeLinecap +'</CssParameter>'+
-                  '</Stroke>'+
-                '</PolygonSymbolizer>';
-            } else if (type == "selected") {
-              sld += '</Stroke>'+
-                  '</PolygonSymbolizer>'+
-                  '<PolygonSymbolizer>'+
-                    '<Fill>'+
-                      '<CssParameter name="fill">'+ configData.sld[type].fill1 +'</CssParameter>'+
-                       '<CssParameter name="fill-opacity">'+ configData.sld[type].fillOpacity1 +'</CssParameter>'+
-                    '</Fill>'+
-                    '<Stroke>'+
-                      '<CssParameter name="stroke">'+ configData.sld[type].stroke1 +'</CssParameter>'+
-                      '<CssParameter name="stroke-width">'+ configData.sld[type].strokeWidth1 +'</CssParameter>'+
-                    '</Stroke>'+
-                  '</PolygonSymbolizer>'+
-                 '<PerpendicularOffset>'+ configData.sld[type].perpendicularOffset +'</PerpendicularOffset>';
-            }
-            sld += '</Rule>'+
-                  '</FeatureTypeStyle>'+
-                '</UserStyle>'+
-              '</NamedLayer>'+
-            '</StyledLayerDescriptor>';
-            return sld;
-          }
-        },
-        addTileAreaLayers(code, areas, map, extent) {
-          var _this = this,
-            areaLayers = []
-          return ((code, areas, map) => {
-            var layersName;
-            for (let i = 0; i < areas.length; i++) {
-              if (code) {
-                if(areas[i].area_id == code) {
-                  var _layer = this.addRegion(areas[i].area_id, this.styles.bold, map, extent);
-                  areaLayers.push(_layer)
-                  if (areas[i].contain) {
-                    for (let j = 0; j < areas[i].contain.length; j++) {
-                      layersName = 'map:area_' + areas[i].contain[j].area_id
-                      var _layer = this.addRegion(areas[i].contain[j].area_id, this.styles.normal, map, extent);
-                      areaLayers.push(_layer)
-                    }
-                  }
-                  return areaLayers;
-                } 
-                if(areas[i].area_id != code && areas[i].contain) {
-                  areaLayers = areaLayers.concat(this.addTileAreaLayers(code, areas[i].contain, map, extent));
-                }
-              } else {
-                var _layer = this.addRegion(areas[i].area_id, this.styles.bold, map, extent);
-                areaLayers.push(_layer)
-              }
-            }
-            return areaLayers
-          })(code, areas, map)
-
-          return areaLayers
-        },
-        addRegion(areaCode, styles, map, extent) {
-          var server = config.mapUrl;
-          var layerName = "map:sz_gov_shape_data";
-          var fieldName = "area_code";
-
-          return this.addFilteredPGLayer(server, layerName, fieldName, areaCode, styles, map, extent);
-        },
-        addFilteredPGLayer(server, layerName, fieldName, fieldVal, styles, map, extent) {
-          extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
-          var layer = new ol.layer.Image({
-            extent: extent,
-            source: new ol.source.ImageWMS({
-              url : server,
-              params: {
-                'VERSION': '1.1.1',
-                'LAYERS': layerName,
-                "tiled": true,
-                "SLD_BODY": this.getFilterSldWithStyle(layerName, fieldName, fieldVal, styles)
-              }
-            })
-          });
-          map.addLayer(layer);
-          layer.setZIndex(8)
-          return layer
-        },
-        getFilterSldWithStyle(layerName, fieldName, fieldVal, styles) {
-          return "<StyledLayerDescriptor\n                xmlns=\"http://www.opengis.net/sld\"\n                xmlns:ogc=\"http://www.opengis.net/ogc\"\n                xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n                xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n                version=\"1.0.0\"\n                xsi:schemaLocation=\"http://www.opengis.net/sld StyledLayerDescriptor.xsd\">\n            <UserLayer>\n                <Name>" + layerName + "</Name>\n                <UserStyle>\n                    <Name>UserSelection</Name>\n                    <FeatureTypeStyle>\n                        <Rule>\n                            <Filter xmlns:gml=\"http://www.opengis.net/gml\">\n                                <PropertyIsEqualTo>\n                                    <PropertyName>" + fieldName + "</PropertyName>\n                                    <Literal>" + fieldVal + "</Literal>\n                                </PropertyIsEqualTo>\n                            </Filter>\n\n                        " + styles() + "\n\n                        </Rule>\n                    </FeatureTypeStyle>\n                </UserStyle>\n            </UserLayer>\n        </StyledLayerDescriptor>";
-        },
         addXYZLayer(url, extent, map) {
+          if (!url) {
+            console.error("Please set 'serverUrl'")
+            return null
+          }
+
           let layer = new ol.layer.Tile({
             extent: extent,
             source: new ol.source.XYZ({
               url: url +'/{z}/{x}/{-y}.png'
             })
           });
+
           map.addLayer(layer);
           layer.setZIndex(2);
+          
           return layer
         },
         removeLayers (layers, map) {
@@ -688,119 +498,342 @@ module.exports = function (config, configData, request, vueBus) {
           }
         },
         stopDraw() {
+          this.doubleClickZoom(true)
           this.meassureInteraction.stopDraw();
           vueBus.$emit('mapDrawHandler', {maptool: false})
         },
         mapDrawHandler({maptool, ndvi}) {
           if (ndvi) {
-            this.clearTools(true)
-            this.setMapToolStatus()
+            this.clearTools()
+            this.doubleClickZoom(false)
             this.meassureInteraction.stopDraw();
           }
         },
-        clearTools(disableDbZoom) {
+        clearTools() {
           this.removeLonlat()
           this.removeAltitude()
 
-          this.setMapDefaultStatus(disableDbZoom)
+          this.meassureInteraction.stopDraw();
+          vueBus.$emit('mapDrawHandler', {maptool: false})
+          this.map.getViewport().style.cursor = 'default'
+        },
+        activeTools() {
+          this.clearTools()
+          vueBus.$emit('mapDrawHandler', {maptool: true})
+          this.doubleClickZoom(false)
         },
         toggleToolPanel() {
           this.showTool = !this.showTool
-          this.clearTools(true)
-          this.setMapToolStatus()
-          this.meassureInteraction.stopDraw();
-          vueBus.$emit('mapDrawHandler', {maptool: false})
+          this.clearTools()
         },
         toolChange(index) {
           this.showTool = false
-          this.clearTools(true)
-
+          this.activeTools()
           switch(index) {
             case 0: 
-              this.seeLonlatHandler()
+              this.seeLonlat = true
+              this.bindLonLatEvt()
               break
             case 1: 
-              this.seeAltitudeHandler()
+              this.seeAltitude = true
+              this.bindAltitudeEvt()
               break
             case 2: 
-              this.drawLineHandler()
+              this.meassureInteraction('line')
               break
             case 3: 
-              this.drawAreaHandler()
+              this.meassureInteraction('area')
               break
             default: 
               break
           }
         },
-        setMapDefaultStatus(disableDbZoom) {
-          vueBus.$emit('mapDrawHandler', {maptool: false})
-          
-          this.map.getViewport().style.cursor = 'default'
+        /* 
+          @options: {
+            serverUrl: 'http://xxx.com',
+            layerName: 'layer name',
+            extent: [1, 2, 3, 4],
+            visible: true,
+            opacity: 1,
+            zIndex: 3,
+            styles: 'sld name',
+            sld: '<sld></sld>'
+          }
+         */
+        getTileLayer(options) {
 
-          if (typeof disableDbZoom === "boolean" && disableDbZoom) {
-            vueBus.$emit('doubleClickZoom', false)
-          } else {
-            setTimeout(()=> {
-              vueBus.$emit('doubleClickZoom', true)
-            }, 1000)
+          if (!options.serverUrl) {
+            console.error("Please set 'serverUrl'")
+            return null
+          }
+          
+          var layer = null
+          layer = new ol.layer.Tile({
+            visible: options.visible,
+            extent: options.extent,
+            opacity: options.opacity,
+            source: new ol.source.TileWMS({
+              url: options.serverUrl,
+              params: {
+                LAYERS: options.layerName,
+                tiled: true,
+                FORMAT: "image/png",
+                VERSION: '1.1.1',
+              }
+            })
+          })
+
+          updateParams(layer, "STYLES", options.styles)
+          updateParams(layer, "SLD_BODY", options.sld)
+
+          setLayerZIndex(layer, options.zIndex)
+
+          return layer
+
+          function updateParams(layer, key, value) {
+            if (value) {
+              layer.getSource().updateParams({[key]: value});
+            }
+          }
+
+          function setLayerZIndex(layer, zIndex) {
+            if (typeof zIndex ==='number') {
+              layer.setZIndex(zIndex);
+            }
           }
         },
-        setMapToolStatus() {
-          vueBus.$emit('mapDrawHandler', {maptool: true})
-          vueBus.$emit('doubleClickZoom', false)
-          this.map.getViewport().style.cursor = 'pointer'
+        /* 
+         * @metaList: an Array of object
+         * @keys: an Array of object key
+         */
+        getFeatures(metaList, keys, desc) {
+          var features = []
+          if (desc) {
+            for (var i = metaList.length - 1; i >= 0; i--) {
+              appendFeature(features, metaList[i], keys)
+            }
+
+          } else {
+            for (var i = 0; i < metaList.length; i++) {
+              appendFeature(features, metaList[i], keys)
+            }
+          } 
+
+          return features
+
+          function appendFeature(features, metaObject, keys) {
+            var item = getAttrs(metaObject, keys)
+            var feature = {
+              type: 'Feature',
+              geometry: getGeom(metaObject.geom),
+              properties: item
+            }
+            features.push(feature)
+          }
+          // easy copy
+          function getAttrs(metaObject, keys) {
+            var attribute = {}
+            for(var i = 0; i < keys.length; i++) {
+              attribute[keys[i]] = metaObject[keys[i]]
+            }
+
+            return attribute
+          }
+          function getGeom(geom) {
+            if (typeof geom === "string") {
+              geom = JSON.parse(geom)
+            }
+
+            return geom
+          }
         },
-        seeLonlatHandler() {
-          this.setMapToolStatus()
-          this.seeLonlat = true
-          this.bindLonLatEvt()
+        getMultyAreaLayer(mapUrl, codes, bounds) {
+          var layerName = this.TILE_LAYER_NAME;
+          var sld = this.getCodesSld(codes, layerName)
+          var source = this.getImageSource(mapUrl, layerName, sld)
+          var extent = this.getExtentByBounds(bounds)
+          var areaLayer = this.getImageLayer(source, extent)
+
+          return areaLayer
         },
-        seeAltitudeHandler() {
-          this.setMapToolStatus()
-          this.seeAltitude = true
-          this.bindAltitudeEvt()
+        getCodesSld(codes, layerName) {
+          var literals = ''
+
+          for (var i = 0; i < codes.length; i++) {
+            literals += `<ogc:Literal>${codes[i]}</ogc:Literal>`
+          }
+          var sld = '<?xml version="1.0" encoding="ISO-8859-1"?><StyledLayerDescriptor version="1.0.0" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml">  <UserLayer> <Name>' + layerName + '</Name> <UserStyle> <Title>GeoServer SLD Cook Book: Simple point</Title> <FeatureTypeStyle> <Rule> <ogc:Filter> <ogc:PropertyIsEqualTo> <ogc:Function name="in"> <ogc:PropertyName>area_code</ogc:PropertyName> ' + literals + ' </ogc:Function> <ogc:Literal>true</ogc:Literal></ogc:PropertyIsEqualTo></ogc:Filter><PolygonSymbolizer><Fill> <CssParameter name="fill">#000000</CssParameter> <CssParameter name="fill-opacity">0</CssParameter></Fill><Stroke> <CssParameter name="stroke">#1665c1</CssParameter> <CssParameter name="stroke-width">1.6</CssParameter></Stroke></PolygonSymbolizer><PolygonSymbolizer><Fill> <CssParameter name="fill">#000000</CssParameter> <CssParameter name="fill-opacity">0</CssParameter></Fill><Stroke> <CssParameter name="stroke">#ffffff</CssParameter> <CssParameter name="stroke-width">0.2</CssParameter> </Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></UserLayer></StyledLayerDescriptor>'
+          return sld
         },
-        drawLineHandler() {
-          this.setMapToolStatus()
-          this.meassureInteraction('line')
+        getImageSource(mapUrl, layerName, sld) {
+          var source = new ol.source.TileWMS({
+            url : mapUrl,
+            params: {
+              'VERSION': '1.1.1',
+              'LAYERS': layerName,
+              "tiled": true,
+              "SLD_BODY": sld,
+              "FORMAT": "image/png8"
+            }
+          })
+
+          return source
         },
-        drawAreaHandler() {
-          this.setMapToolStatus()
-          this.meassureInteraction('area')
-        }
+        getExtentByBounds(bounds) {
+          var extent = ol.extent.applyTransform(bounds, ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
+          return extent
+        },
+        getImageLayer(source, extent) {
+          var layer = new ol.layer.Tile({
+            source: source,
+            extent: extent,
+          })
+          layer.setZIndex(8)
+          
+          return layer
+        },
+        getOverlayPosition(detailPopup, direction, offset) {
+          var top = 0
+          var left = 0
+          offset = typeof offset === "number" ? offset : 50
+          switch(direction) {
+            case "top":
+              top = detailPopup.clientHeight + offset
+              left = detailPopup.clientWidth / 2
+              break
+            case "left":
+              top = detailPopup.clientHeight / 2
+              left = detailPopup.clientWidth + offset
+              break
+            case "bottom":
+              top = -detailPopup.clientHeight/2
+              left = detailPopup.clientWidth / 2
+              break
+            case "right":
+              top = detailPopup.clientHeight / 2
+              left = -(detailPopup.clientWidth / 2 - offset)
+              break
+            default :
+              top = detailPopup.clientHeight + offset
+              left = detailPopup.clientWidth / 2
+              break
+          }
+          return {left, top}
+        },
+        getDirection(detailPopup, pixel, showList) {
+          var direction = ""
+          var height = detailPopup.clientHeight
+          var width = detailPopup.clientWidth
+
+          var headerHeight = 48
+          var listMenu = (showList ? 368 : 10) + this.menuWidth
+
+          var topHeight = pixel[1] - headerHeight - height - 50
+          var halfLeft = pixel[0] - (listMenu + width/2)
+          var halfRight = this.screenWidth - pixel[0] - width/2
+
+          var leftWidth = pixel[0] - (listMenu + width)
+          var halfTop = pixel[1] - headerHeight - height/2 - 50
+
+          var bottomHeight = this.getScreenHeight - pixel[1] - 48 - height
+
+          var rightWidth = this.screenWidth - (listMenu + width)
+          var halfBottom = this.getScreenHeight - pixel[1] - 48 - height/2
+
+          if (topHeight >= 0 && halfLeft >= 0 && halfRight>= 0) {
+            direction = "top"
+
+          } else if (leftWidth >= 0 && halfTop >= 0 && halfBottom >= 0) {
+            direction = "left"
+
+          } else if (rightWidth >= 0 && halfTop >= 0 && halfBottom >= 0) {
+            direction = "right"
+            
+          } else if (bottomHeight >= 0 && halfLeft >= 0 && halfRight>= 0) {
+            direction = "bottom"
+            
+          } else {
+            direction = "top"
+          }
+          return direction
+        },
+        getExtentFromPixel(pixel) {
+          // transform the minY and maxY
+          var pointA = this.map.getCoordinateFromPixel([pixel[0], pixel[3]])
+          var pointB = this.map.getCoordinateFromPixel([pixel[2], pixel[1]])
+
+          return pointA.concat(pointB)
+        },
+        getFitExtent(viewPixel, mapPixel) {
+          var viewWidth = getLength(viewPixel[0], viewPixel[2])
+          var viewHeight = getLength(viewPixel[1], viewPixel[3])
+          
+          var prodWidth = getLength(mapPixel[0], mapPixel[2])
+          var prodHeight = getLength(mapPixel[1], mapPixel[3])
+
+          var scaleX = getScale(viewWidth, prodWidth)
+          var scaleY = getScale(viewHeight, prodHeight)
+
+          var scale = rateWH(viewWidth, viewHeight) >= rateWH(prodWidth, prodHeight) 
+                      ? scaleY : scaleX
+
+          var curView = this.getExtentFromPixel(viewPixel)
+          var mapView = this.getExtentFromPixel(mapPixel)
+
+          var centerX = getCenter(mapView[0], mapView[2])
+          var centerY = getCenter(mapView[1], mapView[3])
+
+          var vCenterX = getCenter(curView[0], curView[2])
+          var vCenterY = getCenter(curView[1], curView[3])
+
+          var offsetX = vCenterX - centerX
+          var offsetY = vCenterY - centerY
+          
+          var x1, x2, y1, y2
+
+          x1 = (mapView[0] - centerX)/scale + centerX - offsetX
+          x2 = (mapView[2] - centerX)/scale + centerX - offsetX
+
+          y1 = (mapView[1] - centerY)/scale + centerY - offsetY
+          y2 = (mapView[3] - centerY)/scale + centerY - offsetY
+
+          return [x1, y1, x2, y2]
+
+          function getCenter(min, max) {
+            return (max + min)/2
+          }
+
+          function rateWH(width, height) {
+            return width/height
+          }
+
+          function getScale(view, prod) {
+            return view/prod
+          }
+
+          function getLength(min, max) {
+            return max - min
+          }
+        },
       },
       watch: {
         showVec (show) {
           this.tdtVecLayer.setVisible(show)
-           this.tdtImgLayer.setVisible(!show)
+           this.googleImgLayer.setVisible(!show)
         },
         centerCtl(newV, oldV) {
           if (newV.bounds && newV.bounds !== oldV.bounds) {
             this.setCenter()
           }
-        },
-        addAreas (area, oldV) {
-          if (area && !area.code) {
-            this.areaLayers = this.removeLayers(this.areaLayers, this.map);
-            this.areaLayers = this.addAreaLayers(area.code, area.areas, this.map)
-            
-          } else if (area && area.code && area.areas && area.code !== oldV.code) {
-            this.areaLayers = this.removeLayers(this.areaLayers, this.map);
-            this.areaLayers = this.addAreaLayers(area.code, area.areas, this.map)
-          }
-        },
-        addTileAreas(area, oldV) {
-          if (area && !area.code) {
-            this.tileAreaLayers = this.removeLayers(this.tileAreaLayers, this.map);
-            this.tileAreaLayers = this.addTileAreaLayers(area.code, area.areas, this.map, area.extent)
-          } else if (area && area.code && area.areas && area.code !== oldV.code) {
-            this.tileAreaLayers = this.removeLayers(this.tileAreaLayers, this.map);
-            this.tileAreaLayers = this.addTileAreaLayers(area.code, area.areas, this.map, area.extent)
-          }
         }
       },
       components: {
-      }
+      },
+      computed: {
+        screenWidth: ()=> store.getters.screenWidth,
+        getScreenHeight: ()=> store.getters.getScreenHeight,
+        menuWidth: ()=> store.getters.menuWidth,
+      },
     }
   }
 }

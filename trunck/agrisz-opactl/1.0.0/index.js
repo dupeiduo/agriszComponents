@@ -3,11 +3,11 @@ module.exports = function () {
     name: 'opacity-ctl',
     prop: {
       template: `<div>
-                  <span class="demonstration no-select">透明度</span>
+                  <span class="demonstration no-select">{{title}}</span>
                     <el-slider class="slider" 
                       :disabled="useable"
                       v-model="value" ></el-slider>
-                    <span class="ps no-select" style="right: -15px;">{{value}}</span>
+                    <span class="ps no-select" :style="{right: right}">{{value}}%</span>
                 </div>`,
       props: {
         opacity: {
@@ -17,6 +17,14 @@ module.exports = function () {
         useable: {
           type: Boolean,
           default: false
+        },
+        title: {
+          type: String,
+          default: '透明度'
+        },
+        right: {
+          type: String,
+          default: '-15px'
         }
       },
       data() {
